@@ -13,9 +13,9 @@ export default function getPosFromPacket(packet: SPacketPlayerInput | undefined)
 export default function getPosFromPacket(packet: C2SPacket | undefined): SimpleVec3 | undefined;
 export default function getPosFromPacket(packet: C2SPacket | undefined): SimpleVec3 | undefined {
 	if (isC2S("SPacketPlayerPosLook", packet) && packet.pos) {
-		return SimpleVec3.fromFloatVec3(packet.pos);
+		return SimpleVec3.fromVec3Like(packet.pos);
 	}
 	if (isC2S("SPacketPlayerInput", packet)) {
-		return SimpleVec3.fromFloatVec3(packet.pos);
+		return SimpleVec3.fromVec3Like(packet.pos);
 	}
 }

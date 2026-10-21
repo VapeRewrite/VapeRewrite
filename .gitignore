@@ -2,9 +2,7 @@ node_modules
 *.log
 /.idea
 /dist
-/.nyc_output
-/coverage
-/types
+/packages/core/dist/
 pnpm-lock.yaml
 bun.lock
 package-lock.json
