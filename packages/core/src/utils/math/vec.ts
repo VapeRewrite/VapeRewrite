@@ -1,9 +1,7 @@
-import type { Vector3 } from "@types/three";
-
 export type ArrayVec3 = [x: number, y: number, z: number];
 export type ArrayVec2 = [x: number, y: number];
 
-interface FloatVec3 {
+interface Vec3Like {
 	x: number;
 	y: number;
 	z: number;
@@ -22,10 +20,7 @@ export class SimpleVec3 {
 		return new SimpleVec3(this.x - from.x, this.y - from.y, this.z - from.z);
 	}
 
-	static fromFloatVec3(v: FloatVec3): SimpleVec3 {
-		return new SimpleVec3(v.x, v.y, v.z);
-	}
-	static fromThreeVec3(v: Vector3): SimpleVec3 {
+	static fromVec3Like(v: Vec3Like): SimpleVec3 {
 		return new SimpleVec3(v.x, v.y, v.z);
 	}
 }

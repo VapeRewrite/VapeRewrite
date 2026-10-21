@@ -113,10 +113,10 @@ export default abstract class BaseHudElement {
 	protected createDropdownSetting<V extends ModeLike = string>(
 		name: string,
 		options: V[],
-		defaultValue?: (typeof options)[0],
+		defaultValue?: V,
 		visible?: () => boolean,
 	): DropdownSetting<V> {
-		const [value, setValue] = createSignal(defaultValue ?? options[0]);
+		const [value, setValue] = createSignal<V>(() => defaultValue ?? options[0]!);
 		const setting: DropdownSetting<V> = {
 			name,
 			type: "dropdown",

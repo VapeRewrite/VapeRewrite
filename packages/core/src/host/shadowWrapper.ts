@@ -1,4 +1,4 @@
-export default new (class ShadowWrapper {
+class ShadowWrapper {
 	#root: ShadowRoot | undefined;
 	#wrapper: HTMLDivElement | undefined;
 	// #_host: HTMLDivElement | undefined;
@@ -59,4 +59,6 @@ export default new (class ShadowWrapper {
 	// 	this.#root ??= this.#makeShadowRoot();
 	// 	return this.#_host;
 	// }
-})();
+}
+
+export default new ShadowWrapper;
