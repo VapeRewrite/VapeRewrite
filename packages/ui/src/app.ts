@@ -10,7 +10,7 @@ import { initNotifications } from "./notifications";
 import { initProfilesPanel } from "./ProfilesPanel";
 import { initSettingsPanel } from "./SettingsPanel";
 // global CSS
-import globalCss from "./style.css";
+import globalCss from "./style.css?inline";
 import { initTargetsPanel } from "./TargetsPanel";
 
 export function initApp() {
