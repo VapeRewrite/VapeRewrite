@@ -5,6 +5,9 @@
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"license": "AGPL-3.0-only",
+	"publishConfig": {
+		"access": "public"
+	},
 	"files": ["dist", "types", "meta.js", "ReadME.md", "LICENSE.md"],
 	"dependencies": {
 		"@vape-rewrite/ui-api": "workspace:*",
