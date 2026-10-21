@@ -3,6 +3,8 @@ node_modules
 /.idea
 /dist
 /packages/core/dist/
+/packages/ui/dist/
+/packages/ui-api/dist/
 pnpm-lock.yaml
 bun.lock
 package-lock.json

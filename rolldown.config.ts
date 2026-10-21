@@ -5,7 +5,6 @@ import { defineConfig, RolldownOptions, RolldownPlugin } from "rolldown";
 import userscript from "rolldown-plugin-userscript";
 import { withFilter } from "rolldown/filter";
 
-import minifyCSS from "./cssMinifyPlugin";
 import minify from "./minifyPlugin";
 import solid from "./solid";
 import thing from "./thingPlugin";
@@ -57,7 +56,6 @@ function defineGame(
 					},
 				},
 			),
-			minifyCSS(),
 			solid(),
 			plugins,
 			// this MUST be before UserScript, so the comments from it won't be removed.
