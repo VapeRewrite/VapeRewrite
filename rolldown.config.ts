@@ -45,6 +45,7 @@ function defineGame(
 				swc({
 					jsc: {
 						parser: { decorators: true, syntax: "typescript" },
+						target: "esnext",
 						transform: { decoratorVersion: "2023-11" },
 					},
 				}),
