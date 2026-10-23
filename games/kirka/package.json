@@ -13,6 +13,7 @@
 		"@solidjs/web": "catalog:"
 	},
 	"devDependencies": {
-		"@types/three": "0.185.0"
+		"@types/three": "0.185.0",
+		"@vape-rewrite/strings-wasm": "^0.0.1"
 	}
 }
