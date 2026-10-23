@@ -1,9 +1,13 @@
 {
-    "cSpell.words": [
-        "Codeberg",
-        "Criticals",
-        "Kirka",
-        "Miniblox"
-    ],
-	"chat.disableAIFeatures": true
+	"cSpell.words": [
+		"Codeberg",
+		"Criticals",
+		"Kirka",
+		"Miniblox"
+	],
+	"chat.disableAIFeatures": true,
+	"editor.useTabStops": true,
+	"editor.insertSpaces": false,
+	"files.eol": "\n",
+	"editor.detectIndentation": false
 }
