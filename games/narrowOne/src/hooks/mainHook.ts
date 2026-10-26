@@ -30,7 +30,6 @@ export default function hook() {
 				const ta = argArray[0];
 				if (
 					ta != null &&
-					typeof ta === "object" &&
 					"constructor" in ta &&
 					"gameManager" in ta &&
 					"boundLoop" in ta

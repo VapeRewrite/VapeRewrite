@@ -15,13 +15,12 @@ const EMPTY_FN = () => {};
 function fakeEmptyFn<T extends Function>(f: T): T {
 	return createProxy(EMPTY_FN, {
 		apply(_, __, argArray) {
-			f(...argArray);
+			return f(...argArray);
 		},
 	}) as unknown as T;
 }
 const origError = (unsafeWindow as typeof window).Error;
 const {construct: origConstruct} = Reflect;
-const {includes: origIncludes} = String.prototype;
 const {defineProperty} = Object;
 
 const origStackGetter: (() => string) | undefined = (() => {
@@ -34,17 +33,14 @@ function getStack(err: Error) {
 	return origStackGetter.bind(err)() as string;
 }
 
-function includes(s: string, search: string, pos?: number) {
-	return (origIncludes.bind(s) as typeof origIncludes)(search, pos);
-}
-
 function init() {
 	if (!EXPOSE_SYMBOLS) return;
 	defineProperty(unsafeWindow, exposedName, {
 		get: fakeEmptyFn(() => {
 			const err = origConstruct(origError, []);
 			const stk = getStack(err);
-			const fromDevTools = includes(stk, "<anonymous>"); // lazy
+			// lazy
+			const fromDevTools = stk.includes("at <anonymous>") || stk.includes("debugger eval code");
 			if (!fromDevTools) return;
 			return store;
 		}),
