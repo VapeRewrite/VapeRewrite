@@ -1,6 +1,8 @@
 /**
  * its ALL catgpt because I'm lazy and its 11:49 PM
  * let me go to sleep :(
+ * I did try initially and I did implement SpiderMonkey/Firefox stack trace parsing since
+ * it was very minimal, but the V8 stack trace is 20x more complicated to parse
  * @module
  */
 
