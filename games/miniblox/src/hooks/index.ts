@@ -1,2 +1,3 @@
-import "@vape-rewrite/core/src/hooks/hide";
+import {hideExposed} from "@vape-rewrite/core";
+hideExposed();
 import "./gameScript";

@@ -7,6 +7,8 @@ import { store } from "../exposed";
 import createProxy from "../utils/helpers/proxy";
 import { exposedName } from "../utils/mapping/names";
 
+const w = unsafeWindow as typeof window;
+
 function replaceAndCopyFunction<OP, OR>(oldFunc: (...args: OP[]) => OR, newFunc: (r: OR) => OR) {
 	return createProxy(oldFunc, {
 		apply(orig, origID, origArgs) {
@@ -26,21 +28,26 @@ function spliceIt<T>(arr: T[], item: T): T[] | [] {
 	return arr.splice(idx, 1);
 }
 
-Object.getOwnPropertyNames = replaceAndCopyFunction(Object.getOwnPropertyNames, (list) => {
-	spliceIt(list, exposedName);
-	return list;
-});
+export default function hook() {
+	w.Object.getOwnPropertyNames = replaceAndCopyFunction(Object.getOwnPropertyNames, (list) => {
+		spliceIt(list, exposedName);
+		return list;
+	});
 
-Object.keys = replaceAndCopyFunction(Object.keys, (list) => {
-	spliceIt(list, exposedName);
-	return list;
-});
-Object.values = replaceAndCopyFunction(Object.values, (list) => {
-	spliceIt(list, store);
-	return list;
-});
+	w.Object.keys = replaceAndCopyFunction(w.Object.keys, (list) => {
+		spliceIt(list, exposedName);
+		return list;
+	});
+	w.Object.values = replaceAndCopyFunction(w.Object.values, (list) => {
+		spliceIt(list, store);
+		return list;
+	});
 
-Object.getOwnPropertyDescriptors = replaceAndCopyFunction(Object.getOwnPropertyDescriptors, (l) => {
-	delete l[exposedName];
-	return l;
-});
+	w.Object.getOwnPropertyDescriptors = replaceAndCopyFunction(
+		w.Object.getOwnPropertyDescriptors,
+		(l) => {
+			delete l[exposedName];
+			return l;
+		},
+	);
+}

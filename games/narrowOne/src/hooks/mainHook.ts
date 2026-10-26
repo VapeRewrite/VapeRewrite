@@ -1,62 +1,40 @@
 /**
- * The game's detections do
- * ```js
- * new Function("main", `"use strict";${code}`)(main)
- * ```
- * we can hook `new Function` to return a wrapper around the detection function, and
- * also grab the object passed to it.
- * There would be a better way if we were running before the game, but sadly, we don't.
- * I *could* run before the game, but the problem with that is,
- * I'd rather make it easier for myself to make paste-in-console support than make this easier to use,
- * especially when its just waiting a few seconds for the client to receive a payload
- * from the server.
+ * we used to hook `new Function` since they didn't check error stack, but now they do :(
+ * anyway its fixed. hang Jesper, seriously,
+ * you come alive with a SILENT UPDATE TO DETECT VAPE REWRITE :rage:
+ * its fine though, now you're just going to have a harder time detecting us.
+ * I already know a way to detect it on EVERY site version thing (THAT I ACCIDENTALLY FOUND OUT)
+ * because userscript managers are gay, but I'm not telling you.
+ * Find it yourself and I'll probably get catgpt to do the migration,
+ * since it requires reworking a LOT.
+ * anyway, good luck finding a new detection ;)
+ * you KNOW I spend lots of time trying to make this undetectable,
+ * and the fact that you resorted to ERROR STACK DETECTIONS shows.
  * @module
  */
 
 import { expose } from "@vape-rewrite/core";
 // import DetectionDebugger from "@/features/modules/impl/utility/DetectionDebugger";
-import { showNotification } from "@vape-rewrite/ui-api";
 import { createProxy } from "@vape-rewrite/core";
 
-import { origArrayFrom } from "./gameHook";
 import { Main } from "@wq2/narrow-one-types/src/game";
 
 const w = (unsafeWindow ?? window) as typeof window;
-export const origFunction = w.Function;
+const origBind = w.Function.prototype.bind;
 
 export let main: Main | undefined;
-export function thing(cls: any, contributed = false) {
-	if (main !== undefined) return;
-	if (cls == null) return;
-	if (typeof cls !== "object" && "constructor" in cls) return;
-	if (["cam", "assets"].every((x) => x in cls)) {
-		main = cls;
-		showNotification("Vape", "All features are now unlocked.", "info", 1.5e3);
-		if (!contributed) w.Function = origFunction;
-		Array.from = origArrayFrom;
-		expose("main", () => main);
-		return main;
-		// if (DetectionDebugger.INSTANCE.enabled)
-		// 	DetectionDebugger.INSTANCE.rehook();
-	}
-}
+
 export default function hook() {
-	return new Promise((res) => {
-		w.Function = createProxy(origFunction, {
-			construct(target, argArray, newTarget) {
-				const r = Reflect.construct(target, argArray, newTarget);
-				return createProxy(r, {
-					apply(_, __, argArray) {
-						function call() {
-							return Reflect.apply(_, __, argArray);
-						}
-						if (argArray.length !== 1) return call();
-						res(thing(argArray[0]));
-						return call();
-					},
-				});
-			},
-		});
+	w.Function.prototype.bind = createProxy(origBind, {
+		apply(target, thisArg, argArray: [thisArg: any, ...argArray: any[]]) {
+			const ta = argArray[0];
+			if ("gameManager" in ta && "boundLoop" in ta) {
+				main = ta;
+				w.Function.prototype.bind = origBind;
+				expose("main", () => main);
+			}
+			return Reflect.apply(target, thisArg, argArray);
+		},
 	});
 }
 

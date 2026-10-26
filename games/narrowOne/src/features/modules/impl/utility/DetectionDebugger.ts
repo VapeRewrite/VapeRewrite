@@ -12,12 +12,10 @@ import { Mod } from "@vape-rewrite/core";
 import { showNotification } from "@vape-rewrite/ui-api";
 import { createProxy } from "@vape-rewrite/core";
 import { Logger } from "@vape-rewrite/core";
-// mainHook also hooks `Function`,
-// we want to call its proxy in case it initializes before us.
-import { origFunction as realOrigFunction } from "@/hooks/mainHook";
 
-import { main, thing } from "@/hooks/mainHook";
+import { main } from "@/hooks/mainHook";
 import game, { anyReady } from "@/utils/refs/game";
+import { Player } from "@wq2/narrow-one-types";
 
 const w = (unsafeWindow ?? window) as typeof window;
 
@@ -32,13 +30,14 @@ interface CodeLog {
 }
 
 const logs: CodeLog[] = [];
+let playerProto: Player;
 
 export default class DetectionDebugger extends Mod {
 	name = "DetectionDebugger";
 	static readonly INSTANCE = new DetectionDebugger();
 	category = Category.UTILITY;
 	protected onDisable(): void {
-		if (!main) [w.eval, w.Function] = [origEval, realOrigFunction];
+		if (!main) [w.eval, w.Function] = [origEval, origFunction];
 		try {
 			const clipboard = JSON.stringify(logs);
 			navigator.clipboard
@@ -82,7 +81,8 @@ export default class DetectionDebugger extends Mod {
 	}
 	protected onEnable(): void {
 		anyReady.then(() => {
-			game.player.__proto__.report = createProxy(game.player.__proto__.report, {
+			playerProto = Object.getPrototypeOf(game.player);
+			playerProto.report = createProxy(playerProto.report, {
 				apply(target, thisArg, argArray: [reason: number, n: number]) {
 					if (!thisArg.hasOwnership) return Reflect.apply(target, thisArg, argArray);
 					logger.warn("client-sided ac:", thisArg, argArray, new Error().stack);
@@ -110,15 +110,12 @@ export default class DetectionDebugger extends Mod {
 					return r;
 				},
 			}),
-			createProxy(realOrigFunction, {
+			createProxy(origFunction, {
 				construct: (target, argArray, newTarget) => {
 					const r = Reflect.construct(target, argArray, newTarget);
 					return createProxy(r, {
 						apply: (target, thisArg, argArray) => {
 							const a = Reflect.apply(target, thisArg, argArray);
-							if (!main && argArray.length === 1) {
-								thing(argArray[0], true);
-							}
 							// target is a proxy somehow..?
 							this.logFunctionCall(r, argArray, a);
 							return a;

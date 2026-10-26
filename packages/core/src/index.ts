@@ -35,6 +35,10 @@ export type { CategoryData } from "./features/modules/api/Category";
 export { default as LegitModule } from "./features/modules/api/LegitModule";
 export { default as LegitModuleManager } from "./features/modules/api/LegitModuleManager";
 
+// hooks
+export { default as hideExposed } from "./hooks/hideExposed";
+export { default as hideStack } from "./hooks/hideStack";
+
 // ── Config ───────────────────────────────────────────────────────────
 export { default as Configurable } from "./features/config/Configurable";
 export { default as SubModule } from "./features/config/SubModule";
