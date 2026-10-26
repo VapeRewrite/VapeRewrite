@@ -16,7 +16,6 @@
 import { expose } from "@vape-rewrite/core";
 // import DetectionDebugger from "@/features/modules/impl/utility/DetectionDebugger";
 import { createProxy } from "@vape-rewrite/core";
-
 import { Main } from "@wq2/narrow-one-types/src/game";
 
 const w = (unsafeWindow ?? window) as typeof window;
@@ -25,16 +24,25 @@ const origBind = w.Function.prototype.bind;
 export let main: Main | undefined;
 
 export default function hook() {
-	w.Function.prototype.bind = createProxy(origBind, {
-		apply(target, thisArg, argArray: [thisArg: any, ...argArray: any[]]) {
-			const ta = argArray[0];
-			if ("gameManager" in ta && "boundLoop" in ta) {
-				main = ta;
-				w.Function.prototype.bind = origBind;
-				expose("main", () => main);
-			}
-			return Reflect.apply(target, thisArg, argArray);
-		},
+	return new Promise<Main>((res) => {
+		w.Function.prototype.bind = createProxy(origBind, {
+			apply(target, thisArg, argArray: [thisArg: any, ...argArray: any[]]) {
+				const ta = argArray[0];
+				if (
+					ta != null &&
+					typeof ta === "object" &&
+					"constructor" in ta &&
+					"gameManager" in ta &&
+					"boundLoop" in ta
+				) {
+					main = ta;
+					w.Function.prototype.bind = origBind;
+					res(ta);
+					expose("main", () => main);
+				}
+				return Reflect.apply(target, thisArg, argArray);
+			},
+		});
 	});
 }
 

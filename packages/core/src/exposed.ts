@@ -19,13 +19,13 @@ function fakeEmptyFn<T extends Function>(f: T): T {
 		},
 	}) as unknown as T;
 }
-const origError = Error;
+const origError = (unsafeWindow as typeof window).Error;
 const {construct: origConstruct} = Reflect;
 const {includes: origIncludes} = String.prototype;
 const {defineProperty} = Object;
 
 const origStackGetter: (() => string) | undefined = (() => {
-	const prop = Object.getOwnPropertyDescriptor(origError.prototype, "stack").get;
+	const prop = Object.getOwnPropertyDescriptor(origConstruct(origError, []), "stack").get;
 	if (!prop) return; // fallback to just getting it
 	return prop;
 })();
@@ -44,13 +44,12 @@ function init() {
 		get: fakeEmptyFn(() => {
 			const err = origConstruct(origError, []);
 			const stk = getStack(err);
-			const fromDevTools = includes(stk, "<anonymous>");
+			const fromDevTools = includes(stk, "<anonymous>"); // lazy
 			if (!fromDevTools) return;
 			return store;
 		}),
 		configurable: false,
-		enumerable: false,
-		writable: false
+		enumerable: false
 	});
 	if (LOG_EXPOSE_NAME) logger.info("Symbol expose store name:", exposedName);
 }

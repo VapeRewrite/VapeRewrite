@@ -5,10 +5,9 @@ import { PATCH_LOGGER } from "../utils/logging/loggers";
 const w = unsafeWindow as typeof window;
 
 const origError = w.Error;
-const origProto = origError.prototype;
 const { defineProperty, getOwnPropertyDescriptor } = Object;
 
-const origDesc = getOwnPropertyDescriptor(origProto, "stack");
+const origDesc = getOwnPropertyDescriptor(new origError, "stack");
 
 function removeOurLocations(trace: Stack[]): Stack[] {
 	return trace.filter((x) => {
@@ -30,7 +29,7 @@ export default function hook() {
 					const parsed = parseStack(c, origTrace);
 					const modified = removeOurLocations(parsed);
 					const output = reconstructStack(modified);
-					PATCH_LOGGER.info("original trace vs modified trace", origTrace, output);
+					// PATCH_LOGGER.info("original trace vs modified trace", origTrace, output);
 					return output;
 				},
 			});

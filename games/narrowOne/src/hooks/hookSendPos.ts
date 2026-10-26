@@ -23,7 +23,6 @@ export function hook() {
 			thisArg: Player,
 			argArray: [pX: number, pY: number, pZ: number, yaw: number, pitch: number, setback: boolean],
 		) {
-			console.log(argArray);
 			let [pos, rot, setback] = [
 				argArray.slice(0, 3) as ArrayVec3,
 				argArray.slice(4, 5) as ArrayVec2,
