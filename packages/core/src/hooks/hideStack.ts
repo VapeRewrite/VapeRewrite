@@ -1,6 +1,6 @@
-import createProxy from "@/utils/helpers/proxy";
-import { parseStack, reconstructStack, Stack } from "@/utils/helpers/stackParser";
-import { PATCH_LOGGER } from "@/utils/logging/loggers";
+import createProxy from "../utils/helpers/proxy";
+import { parseStack, reconstructStack, Stack } from "../utils/helpers/stackParser";
+import { PATCH_LOGGER } from "../utils/logging/loggers";
 
 const w = unsafeWindow as typeof window;
 
