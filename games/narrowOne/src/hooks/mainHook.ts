@@ -16,33 +16,80 @@
 import { expose } from "@vape-rewrite/core";
 // import DetectionDebugger from "@/features/modules/impl/utility/DetectionDebugger";
 import { createProxy } from "@vape-rewrite/core";
+import { showNotification } from "@vape-rewrite/ui-api";
 import { Main } from "@wq2/narrow-one-types/src/game";
 
+import { ranBefore } from "@/utils/runTiming";
+
+import { origArrayFrom } from "./gameHook";
+
 const w = (unsafeWindow ?? window) as typeof window;
+export const origFunction = w.Function;
 const origBind = w.Function.prototype.bind;
 
 export let main: Main | undefined;
 
-export default function hook() {
-	return new Promise<Main>((res) => {
-		w.Function.prototype.bind = createProxy(origBind, {
-			apply(target, thisArg, argArray: [thisArg: any, ...argArray: any[]]) {
-				const ta = argArray[0];
-				if (
-					ta != null &&
-					"constructor" in ta &&
-					"gameManager" in ta &&
-					"boundLoop" in ta
-				) {
-					main = ta;
-					w.Function.prototype.bind = origBind;
-					res(ta);
-					expose("main", () => main);
-				}
-				return Reflect.apply(target, thisArg, argArray);
-			},
-		});
+function instantMainHook(): Promise<Main> {
+	const { promise, resolve: res } = Promise.withResolvers<Main>();
+	w.Function.prototype.bind = createProxy(origBind, {
+		apply(target, thisArg, argArray: [thisArg: any, ...argArray: any[]]) {
+			const result = Reflect.apply(target, thisArg, argArray);
+			const boundThis = argArray[0];
+			if (
+				boundThis &&
+				typeof boundThis.vsyncLoop === "function" &&
+				boundThis.network &&
+				typeof boundThis.thirdPartyEnabled === "boolean"
+			) {
+				const ta = boundThis as Main;
+				main = ta;
+				res(ta);
+				Function.prototype.bind = origBind; // restore
+			}
+			return result;
+		},
 	});
+	return promise;
+}
+
+export function contributeMain(cls: any, contributed = false) {
+	if (main !== undefined) return false;
+	if (cls == null) return false;
+	if (typeof cls !== "object" && "constructor" in cls) return false;
+	if (["cam", "assets"].every((x) => x in cls)) {
+		main = cls;
+		showNotification("Vape", "All features are now unlocked.", "info", 1.5e3);
+		if (!contributed) w.Function = origFunction;
+		Array.from = origArrayFrom;
+		expose("main", () => main);
+		return true;
+	}
+}
+function detectionHook() {
+	const { promise, resolve: res } = Promise.withResolvers<Main>();
+	w.Function = createProxy(origFunction, {
+		construct(target, argArray, newTarget) {
+			const r = Reflect.construct(target, argArray, newTarget);
+			return createProxy(r, {
+				apply(_, __, argArray) {
+					function call() {
+						return Reflect.apply(_, __, argArray);
+					}
+					if (argArray.length !== 1) return call();
+					const [a] = argArray;
+					if (contributeMain(a)) {
+						res(a);
+					}
+					return call();
+				},
+			});
+		},
+	});
+	return promise;
+}
+
+export default function hook(): Promise<Main> {
+	return ranBefore ? instantMainHook() : detectionHook();
 }
 
 export const ready = hook();

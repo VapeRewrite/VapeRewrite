@@ -10,9 +10,15 @@ export default class KillAura extends Mod {
 	name = "KillAura";
 	category = Category.BLATANT;
 	#extraReachSetting = this.createSliderSetting("ExtraReach", 2, 2, 24, 1);
-	get extraReach() {
+	#ignoreDeadSetting = this.createToggleSetting("IgnoreDead", true);
+
+	get #extraReach() {
 		return this.#extraReachSetting.value();
 	}
+	get #ignoreDead() {
+		return this.#ignoreDeadSetting.value();
+	}
+
 	static readonly INSTANCE = new KillAura();
 
 	@Bus.Subscribe("playerTick")
@@ -26,7 +32,7 @@ export default class KillAura extends Mod {
 		const selfTeam = player.teamId;
 		for (const oPlr of players.values()) {
 			// const {rigidBody} = oPlr;
-			if (oPlr === player || oPlr.dead) continue;
+			if (oPlr === player || (this.#ignoreDead || oPlr.dead)) continue;
 			if (!canAttack(selfTeam, oPlr.teamId)) continue;
 			const look = lookAtPlayer(
 				oPlr.pos,

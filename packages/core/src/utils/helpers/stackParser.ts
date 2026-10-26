@@ -158,7 +158,7 @@ function parseMinimalFrame(value: string): Stack | undefined {
  * Invalid and non-frame lines are skipped instead of throwing, since browser
  * stack traces can include native frames and browser-specific metadata.
  */
-export function parseStack(err: Error, stack: string): Stack[] {
+export function parseStack(err: Error | undefined, stack: string): Stack[] {
 	if (!stack || typeof stack !== "string") return [];
 
 	let lines = stack.split(/\r?\n/);
@@ -167,8 +167,8 @@ export function parseStack(err: Error, stack: string): Stack[] {
 	// Do not assume the header has a fixed length.
 	const header = err.toString();
 
-	if (lines.length > 0 && lines[0].trim() === header) {
-		lines = lines.slice(1);
+	if (header) {
+		lines = lines.slice(header.length);
 	} else if (
 		lines.length > 0 &&
 		/^(?:Error|TypeError|ReferenceError|RangeError|SyntaxError|EvalError|URIError|AggregateError)(?::|$)/.test(

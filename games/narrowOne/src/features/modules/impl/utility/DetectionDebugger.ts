@@ -13,13 +13,13 @@ import { showNotification } from "@vape-rewrite/ui-api";
 import { createProxy } from "@vape-rewrite/core";
 import { Logger } from "@vape-rewrite/core";
 
-import { main } from "@/hooks/mainHook";
+import { contributeMain, main, origFunction as realOrigFunction } from "@/hooks/mainHook";
 import game, { anyReady } from "@/utils/refs/game";
 import { Player } from "@wq2/narrow-one-types";
 
 const w = (unsafeWindow ?? window) as typeof window;
 
-const [origEval, origFunction] = [w.eval, w.Function];
+const [origEval, origFunction] = [w.eval, realOrigFunction];
 const logger = new Logger("DetectionDebugger");
 
 interface CodeLog {
@@ -116,6 +116,7 @@ export default class DetectionDebugger extends Mod {
 					return createProxy(r, {
 						apply: (target, thisArg, argArray) => {
 							const a = Reflect.apply(target, thisArg, argArray);
+							if (argArray.length === 1) contributeMain(argArray[0], true);
 							// target is a proxy somehow..?
 							this.logFunctionCall(r, argArray, a);
 							return a;
