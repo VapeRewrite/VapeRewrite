@@ -10,6 +10,14 @@ import { reverseMapping, type Mapping } from "@vape-rewrite/core";
 
 import gameRefs from "../refs/game";
 import { Game, Player, World } from "../types/unknown";
+import { MATCHED_DUMPS } from "@/hooks/dumps";
+import type { DumpKey } from "@/hooks/dumps";
+
+function ofDumps<K extends DumpKey>(...ks: K[]): Record<K, string> {
+	return Object.fromEntries(
+		ks.map((k) => [MATCHED_DUMPS[k], k] as const).filter(([k]) => k !== undefined),
+	) as unknown as Record<K, string>;
+}
 
 // in an object so they can easily be modified at runtime via just redefining them.
 const mapFrom = {
@@ -77,6 +85,7 @@ const mappings = new (class Mappings {
 	#Player?: Mapping;
 	#world?: Mapping;
 	#game?: Mapping;
+	#vector?: Mapping;
 	get player() {
 		return initOrR(this.#Player, () => {
 			const { rawLocalPlayer } = gameRefs;
@@ -90,6 +99,9 @@ const mappings = new (class Mappings {
 			if (!rawGame) return;
 			return mapFrom.game(rawGame);
 		});
+	}
+	get vector() {
+		return initOrR(this.#vector, () => ofDumps("x", "y", "z"));
 	}
 	get world() {
 		return initOrR(this.#world, () => {
