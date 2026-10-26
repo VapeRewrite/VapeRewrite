@@ -6,10 +6,12 @@
  * @module
  */
 
-import { ranBefore } from "@/utils/runTiming";
 import { createProxy } from "@vape-rewrite/core";
 import { OnlineGame } from "@wq2/narrow-one-types/src/game";
-import { main } from "./mainHook";
+
+import { ranBefore } from "@/utils/runTiming";
+
+import { main, ready as mainReady } from "./mainHook";
 
 /** used in mainHook.ts to remove the `Array.from` hook */
 export let origArrayFrom = Array.from;
@@ -17,7 +19,19 @@ export let origArrayFrom = Array.from;
 export let gameObj: OnlineGame;
 export default function hook() {
 	return new Promise<OnlineGame>((res) => {
-		if (ranBefore) res(main.gameManager.getOnlineGame());
+		if (ranBefore) { // holy hack
+			mainReady.then(() => {
+				const gm = main.gameManager.getOnlineGame();
+				if (!gm) {
+					main.gameManager.onActiveGameChange(() => {
+						const g = main.gameManager.getOnlineGame();
+						if (g) res(g);
+					});
+				} else {
+					res(gm);
+				}
+			});
+		}
 		Array.from = createProxy(origArrayFrom, {
 			apply(target, thisArg, argArray: [ArrayLike<unknown>]) {
 				const r: Array<unknown> = Reflect.apply(target, thisArg, argArray);

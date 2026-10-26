@@ -89,6 +89,7 @@ function detectionHook() {
 }
 
 export default function hook(): Promise<Main> {
+	console.info("ran before?", ranBefore);
 	return ranBefore ? instantMainHook() : detectionHook();
 }
 

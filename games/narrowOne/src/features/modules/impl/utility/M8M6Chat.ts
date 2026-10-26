@@ -12,16 +12,16 @@ export default class M8M6Chat extends Mod {
 	name = "M8M6Chat";
 	category = Category.UTILITY;
 	#setOrigValues() {
-		if (origProto || origUpdateVisibility) return;
+		if (origProto || origUpdateVisibility) return false;
 		const { onlineInstance: instance} = gameRefs;
-		if (!instance) return showNotification("M8M6Chat", "not in game, can't hook", "alert", 0.5e3);
+		if (!instance) return showNotification("M8M6Chat", "not in game, can't hook", "alert", 0.5e3), false;
 		const { chat } = instance;
 		if (!origProto) origProto = Object.getPrototypeOf(chat);
 		if (!origUpdateVisibility) origUpdateVisibility = origProto.updateVisibility;
 	}
 	protected onEnable(): void {
 		anyReady.then(() => {
-			this.#setOrigValues();
+			if (!this.#setOrigValues()) return;
 			origProto.updateVisibility = createProxy(origUpdateVisibility, {
 				apply(_, thisArg: Chat, __) {
 					const { network, settingsManager } = gameRefs;
