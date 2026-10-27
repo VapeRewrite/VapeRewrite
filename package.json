@@ -20,7 +20,8 @@
 		"dev": "rolldown -wc",
 		"clean": "del-cli dist",
 		"ci": "bun run lint",
-		"build": "cross-env NODE_ENV=production rolldown -c",
+		"build": "rolldown -c",
+		"build:prod": "cross-env NODE_ENV=production rolldown -c",
 		"lint": "oxlint check packages/*/src",
 		"lint:fix": "oxlint check packages/*/src --fix",
 		"fmt": "oxfmt check packages/*/src"
