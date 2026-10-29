@@ -11,7 +11,7 @@ const gameRefs = {
 		return mp;
 	},
 	get script() {
-		return gameRefs.game.script;
+		return gameRefs.game?.script;
 	}
 };
 
