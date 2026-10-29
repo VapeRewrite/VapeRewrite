@@ -1,13 +1,8 @@
 // --- setup: g = your handle (fiber-walk), mp = Multiplayer instance (fiber-walk: has sendHit + sendWhisper + sendRanks)
 
-import { ready } from "@/hooks/gameHook";
-
 import gameRefs from "./refs/game";
+import selectedSlotTracker from "./selectedSlotTracker";
 import type { ItemStack } from "./types";
-
-// Track selected slot once:
-let sel = 0;
-ready.then((g) => g.onSelectedSlotChange?.((i) => (sel = i)));
 
 // Weapon damage: spears are ids 1790-1796 (wood..infernium), mace 1797. Fill sword/axe/pickaxe ids the same
 // way, or measure any weapon by hitting something once and reading the engine 'playerHit' damage.
@@ -55,7 +50,7 @@ export default function meleeHit(id: number, o: MeleeOptions = {}) {
 	const { game: g, multiplayerClient: mp } = gameRefs;
 	const eye = g.script.getEye();
 	const st = g.getInventory();
-	const held = st[sel];
+	const held = st[selectedSlotTracker.s];
 	const kbEnch = lvl(held, "knockback");
 
 	// ---- local mob ----

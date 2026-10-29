@@ -9,6 +9,7 @@ export default class KillAura extends Mod {
 	@Bus.Subscribe("preTick")
 	private onTick() {
 		const { game } = Refs;
+		if (!game) return;
 		const entities = game.listEntities();
 		for (const entity of entities) {
 			meleeHit(entity.id);
