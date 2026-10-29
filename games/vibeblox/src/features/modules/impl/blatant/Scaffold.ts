@@ -91,8 +91,7 @@ export default class Scaffold extends Mod {
 			return slot;
 		}
 		const slot = getSlot();
-		if (slot === -1) return;
-		const id = inv[slot]?.id;
+		const id = inv[slot]?.id ?? 1;
 		placeBlock(blockX, blockY - 1, blockZ, { x: 0, y: 0, z: 0 }, id);
 	}
 
