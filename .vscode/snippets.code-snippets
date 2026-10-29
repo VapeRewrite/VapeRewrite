@@ -4,12 +4,11 @@
 		"isFileTemplate": true,
 		"description": "Template for modules",
 		"exclude": [
-			"packages/core/**",
-			"packages/*/src/features/modules/impl/legit/*.ts"
+			"packages/**",
+			"games/*/src/features/modules/impl/legit/*.ts"
 		],
 		"body": [
-			"import Category from \"@vape/core/features/modules/api/Category\"",
-			"import Mod from \"@vape/core/features/modules/api/Module\"",
+			"import {Category, Mod} from \"@vape-rewrite/core\"",
 			"",
 			"export default class $TM_FILENAME_BASE extends Mod {",
 			"\tname = \"$TM_FILENAME_BASE\";",
