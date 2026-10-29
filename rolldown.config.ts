@@ -115,5 +115,6 @@ export default defineConfig([
 	defineGame("waybackhq", [thing()]),
 	defineGame("narrowOne"),
 	defineGame("classicNarrowOne"),
+	defineGame("vibeblox"),
 	defineGame("kirka")
 ]);

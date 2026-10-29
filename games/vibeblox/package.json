@@ -1,0 +1,19 @@
+{
+	"name": "@vape/vibeblox",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"dependencies": {
+		"@vape-rewrite/core": "workspace:*",
+		"@vape-rewrite/ui": "workspace:*",
+		"@vape-rewrite/ui-api": "workspace:*",
+		"solid-js": "catalog:",
+		"@solidjs/web": "catalog:"
+	},
+	"devDependencies": {
+		"@types/three": "0.186.0",
+		"@vape-rewrite/vibeblox-types": "^0.0.1"
+	}
+}
