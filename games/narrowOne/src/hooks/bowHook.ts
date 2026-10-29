@@ -1,4 +1,4 @@
-import { Vector3 } from "three";
+import type { Vector3 } from "three";
 
 import gameRefs, { anyReady } from "@/utils/refs/game";
 import { createProxy } from "@vape-rewrite/core";

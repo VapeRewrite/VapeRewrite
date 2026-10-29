@@ -3,7 +3,7 @@ import { initOrR } from "@vape-rewrite/core";
 import { remapObj } from "@vape-rewrite/core";
 import { getInheritanceChain } from "@vape-rewrite/core";
 import { logger } from "@vape-rewrite/core";
-import {
+import type {
 	AllBlocks,
 	BlockPos,
 	Chat,

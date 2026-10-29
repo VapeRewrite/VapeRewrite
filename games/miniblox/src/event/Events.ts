@@ -3,7 +3,7 @@ import type { CancelableWrapper } from "@vape-rewrite/core";
 import type { PacketOutcome } from "@/utils/network/packetQueueManager";
 import type { C2SPacket, S2CPacket } from "@wq2/miniblox-sdk";
 
-import { CPacketName } from "@/utils";
+import type { CPacketName } from "@/utils";
 
 /**
  * Used because network decoding (S -> C) is now done in a worker.

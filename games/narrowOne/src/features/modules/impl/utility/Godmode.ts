@@ -13,7 +13,7 @@
 import { Category } from "@vape-rewrite/core";
 import { Mod } from "@vape-rewrite/core";
 import { createProxy } from "@vape-rewrite/core";
-import { Player } from "@wq2/narrow-one-types/src/game";
+import type { Player } from "@wq2/narrow-one-types/src/game";
 
 import gameRefs, { anyReady } from "@/utils/refs/game";
 

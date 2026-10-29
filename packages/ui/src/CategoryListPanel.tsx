@@ -10,7 +10,7 @@ import {
 
 import { getResourceURL } from "@vape-rewrite/core";
 import { dragHandleAttrName } from "@vape-rewrite/core";
-import { JSX } from "@solidjs/web/jsx-runtime";
+import type { JSX } from "@solidjs/web/jsx-runtime";
 
 export interface CategoryListPanelProps {
 	/** Panel title displayed in the header */

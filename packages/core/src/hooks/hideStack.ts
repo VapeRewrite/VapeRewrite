@@ -1,5 +1,5 @@
 import createProxy from "../utils/helpers/proxy";
-import { parseStack, reconstructStack, Stack } from "../utils/helpers/stackParser";
+import { parseStack, reconstructStack, type Stack } from "../utils/helpers/stackParser";
 
 const w = unsafeWindow as typeof window;
 

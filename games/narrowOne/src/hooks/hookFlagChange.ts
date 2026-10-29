@@ -1,7 +1,7 @@
 import Bus from "@/Bus";
 import gameRefs, { anyReady } from "@/utils/refs/game";
 import { createProxy } from "@vape-rewrite/core";
-import { Flag, Player } from "@wq2/narrow-one-types";
+import type { Flag, Player } from "@wq2/narrow-one-types";
 
 let playerProto: Player, origChangeFlagFromServer: Player["changeFlagFromServer"];
 

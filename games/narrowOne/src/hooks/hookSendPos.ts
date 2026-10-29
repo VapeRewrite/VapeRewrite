@@ -1,11 +1,11 @@
 import { CancelableWrapper } from "@vape-rewrite/core";
 import { showNotification } from "@vape-rewrite/ui-api";
 import { createProxy } from "@vape-rewrite/core";
-import { ArrayVec2, ArrayVec3 } from "@vape-rewrite/core";
-import { Player } from "@wq2/narrow-one-types";
+import type { ArrayVec2, ArrayVec3 } from "@vape-rewrite/core";
+import type { Player } from "@wq2/narrow-one-types";
 
 import Bus from "@/Bus";
-import { ServerMove } from "@/events";
+import type { ServerMove } from "@/events";
 import game, { anyReady } from "@/utils/refs/game";
 
 export let origSendPos;

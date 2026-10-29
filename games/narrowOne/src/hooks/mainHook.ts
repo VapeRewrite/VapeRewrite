@@ -17,7 +17,7 @@ import { expose } from "@vape-rewrite/core";
 // import DetectionDebugger from "@/features/modules/impl/utility/DetectionDebugger";
 import { createProxy } from "@vape-rewrite/core";
 import { showNotification } from "@vape-rewrite/ui-api";
-import { Main } from "@wq2/narrow-one-types/src/game";
+import type { Main } from "@wq2/narrow-one-types/src/game";
 
 import { ranBefore } from "@/utils/runTiming";
 

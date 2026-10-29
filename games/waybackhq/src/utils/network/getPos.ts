@@ -1,4 +1,4 @@
-import { AnyPacket } from "@/hooks/packetHook";
+import type { AnyPacket } from "@/hooks/packetHook";
 import { mod } from "../wrappers/protocol";
 import { SimpleVec3 } from "@vape-rewrite/core";
 

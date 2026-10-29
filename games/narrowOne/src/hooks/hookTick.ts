@@ -7,7 +7,7 @@ import game, { anyReady } from "@/utils/refs/game";
 import gameRefs from "@/utils/refs/game";
 
 import { ready as mainReady } from "./mainHook";
-import { Player } from "@wq2/narrow-one-types";
+import type { Player } from "@wq2/narrow-one-types";
 
 let origGameLoop, origBackgroundGameLoop, origPlayerLoop;
 

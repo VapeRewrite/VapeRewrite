@@ -1,7 +1,7 @@
 import { expose } from "@vape-rewrite/core";
 
 import VueStore from "./vueStore";
-import { Game, Player } from "../types/unknown";
+import type { Game, Player } from "../types/unknown";
 import { remapObj } from "@vape-rewrite/core";
 import mappings from "../mappings/mappings";
 

@@ -7,7 +7,7 @@
  */
 
 import { createProxy } from "@vape-rewrite/core";
-import { OnlineGame } from "@wq2/narrow-one-types/src/game";
+import type { OnlineGame } from "@wq2/narrow-one-types/src/game";
 
 import { ranBefore } from "@/utils/runTiming";
 

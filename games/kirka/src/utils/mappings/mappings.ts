@@ -9,7 +9,7 @@ import { initOrR } from "@vape-rewrite/core";
 import { reverseMapping, type Mapping } from "@vape-rewrite/core";
 
 import gameRefs from "../refs/game";
-import { Game, Player, World } from "../types/unknown";
+import type { Game, Player, World } from "../types/unknown";
 import { MATCHED_DUMPS } from "@/hooks/dumps";
 import type { DumpKey } from "@/hooks/dumps";
 

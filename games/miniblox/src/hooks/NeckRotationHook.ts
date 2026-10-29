@@ -1,4 +1,4 @@
-import { ClientEntityPlayer, RenderPlayer } from "@wq2/miniblox-sdk";
+import type { ClientEntityPlayer, RenderPlayer } from "@wq2/miniblox-sdk";
 
 import RotationManager from "@/utils/aiming/rotate";
 import MovementCorrection, { getEffectiveMode } from "@/utils/movement/MovementCorrection";

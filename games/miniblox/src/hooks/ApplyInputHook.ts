@@ -1,4 +1,4 @@
-import { PlayerMovement, SPacketPlayerInput } from "@wq2/miniblox-sdk";
+import type { PlayerMovement, SPacketPlayerInput } from "@wq2/miniblox-sdk";
 
 import RotationManager from "@/utils/aiming/rotate";
 import MovementCorrection, { doMovementCorrection, doSilentMovementCorrection, getEffectiveMode } from "@/utils/movement/MovementCorrection";

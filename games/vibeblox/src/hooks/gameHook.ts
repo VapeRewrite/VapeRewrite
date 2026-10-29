@@ -1,5 +1,5 @@
 import fiberFinder from "@/utils/fiberFinder";
-import { GameHandle } from "@/utils/types";
+import type { GameHandle } from "@/utils/types";
 
 export let handle: GameHandle;
 

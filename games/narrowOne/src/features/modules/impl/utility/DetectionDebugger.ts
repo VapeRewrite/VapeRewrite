@@ -15,7 +15,7 @@ import { Logger } from "@vape-rewrite/core";
 
 import { contributeMain, main, origFunction as realOrigFunction } from "@/hooks/mainHook";
 import game, { anyReady } from "@/utils/refs/game";
-import { Player } from "@wq2/narrow-one-types";
+import type { Player } from "@wq2/narrow-one-types";
 
 const w = (unsafeWindow ?? window) as typeof window;
 

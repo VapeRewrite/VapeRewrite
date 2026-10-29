@@ -1,6 +1,6 @@
 import { CancelableWrapper } from "@vape-rewrite/core";
 import { createProxy } from "@vape-rewrite/core";
-import { Vector3 } from "three";
+import type { Vector3 } from "three";
 
 import Bus from "@/Bus";
 import gameRefs from "@/utils/refs/game";

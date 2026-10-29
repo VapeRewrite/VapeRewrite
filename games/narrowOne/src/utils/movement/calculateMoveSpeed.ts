@@ -1,4 +1,4 @@
-import { Player } from "@wq2/narrow-one-types";
+import type { Player } from "@wq2/narrow-one-types";
 
 import THREE from "../refs/three";
 import { expose } from "@vape-rewrite/core";
