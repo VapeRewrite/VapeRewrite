@@ -6,6 +6,8 @@ d8a3afe851c7a11e3eec31fcfb81d34115748f21
 # these 2 do mass-import changing
 211194592388f201756a024e8906b1f5c6c615df
 de0f15d9ff98e68189ffab1f46e275572b1cd795
+# `verbatimModuleSyntax` migration
+71544ee7fec5ae1d17938307c703657808ea701c
 # `@vape/` -> `@vape-rewrite/`
 42459a586a6c9149311f57e9c4d635f86dfcda1f
 # move all game source code to games/ folder
