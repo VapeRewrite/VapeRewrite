@@ -5,10 +5,10 @@ import "./ModuleManager";
 import "./Bus";
 import "./utils/refs/game";
 import "@vape-rewrite/core";
+import "./hooks/init"
 import { hideExposed, hideStack } from "@vape-rewrite/core";
 hideStack();
 hideExposed();
-// TODO: hooks
 import { initApp } from "@vape-rewrite/ui";
 
 import { initHudSystem } from "@/features/hud";
