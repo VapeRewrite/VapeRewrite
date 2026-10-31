@@ -33,15 +33,36 @@ function handleStackTrace(trace: string) {
 }
 
 export default function hook() {
-	defineProperty(origProto, "stack", {
-		...origDesc,
-		get() {
-			const ts = this as Error;
-			const origTrace = origDesc.get.bind(ts)() as string;
-			const parsed = parseStack(ts, origTrace);
-			const modified = removeOurLocations(parsed);
-			const output = reconstructStack(modified);
-			return output;
+	w.Error = createProxy(origError, {
+		construct(target, argArray, newTarget) {
+			const err = Reflect.construct(target, argArray, newTarget);
+			defineProperty(err, "stack", {
+				...origDesc,
+				get() {
+					const ts = this as Error;
+					const origTrace = origDesc.get.bind(ts)() as string;
+					const parsed = parseStack(ts, origTrace);
+					const modified = removeOurLocations(parsed);
+					const output = reconstructStack(modified);
+					return output;
+				},
+			});
+			return err;
+		},
+		apply(target, thisArg, argArray) {
+			const err = Reflect.apply(target, thisArg, argArray);
+			defineProperty(err, "stack", {
+				...origDesc,
+				get() {
+					const ts = this as Error;
+					const origTrace = origDesc.get.bind(ts)() as string;
+					const parsed = parseStack(ts, origTrace);
+					const modified = removeOurLocations(parsed);
+					const output = reconstructStack(modified);
+					return output;
+				},
+			});
+			return err;
 		},
 	});
 	if ("captureStackTrace" in w.Error) {
