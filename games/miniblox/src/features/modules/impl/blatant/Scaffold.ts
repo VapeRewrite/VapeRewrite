@@ -47,8 +47,6 @@ export default class Scaffold extends Mod {
 	private oldHeldSlot?: number;
 	private tickCount = 0;
 	private lastScaffoldY: number | null = null;
-	private lastMotionX = 0;
-	private lastMotionZ = 0;
 
 	get tower() {
 		return this.towerSetting.value();
@@ -103,14 +101,10 @@ export default class Scaffold extends Mod {
 		}
 		this.tickCount = 0;
 		this.lastScaffoldY = null;
-		this.lastMotionX = 0;
-		this.lastMotionZ = 0;
 	}
 
 	protected onDisable(): void {
 		this.lastScaffoldY = null;
-		this.lastMotionX = 0;
-		this.lastMotionZ = 0;
 		if (Miniblox.game && this.oldHeldSlot !== undefined) {
 			this.switchSlot(this.oldHeldSlot);
 		}
@@ -253,7 +247,7 @@ export default class Scaffold extends Mod {
 				this.lastScaffoldY = playerY - 1;
 			}
 
-			if (isMoving && player.motion.y > 0) {
+			if (isMoving && player.jumping) {
 				targetY = this.lastScaffoldY + 1;
 			} else {
 				targetY = this.lastScaffoldY;
@@ -262,9 +256,6 @@ export default class Scaffold extends Mod {
 			targetY = playerY - 1;
 			this.lastScaffoldY = targetY;
 		}
-
-		this.lastMotionX = player.motion.x;
-		this.lastMotionZ = player.motion.z;
 
 		// Predict future position
 		const predictionMultiplier = this.expand * 2;
