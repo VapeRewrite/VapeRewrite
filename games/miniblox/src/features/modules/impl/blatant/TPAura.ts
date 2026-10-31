@@ -42,19 +42,24 @@ export default class TPAura extends Mod {
 	private blocking = false;
 
 	// Settings
-	private rangeSetting = this.createSliderSetting("Range", 20, 6, 48, 0.5);
-	private autoBlockSetting = this.createToggleSetting("Auto Block", true);
+	#rangeSetting = this.createSliderSetting("Range", 20, 6, 48, 0.5);
+	#autoBlockSetting = this.createToggleSetting("Auto Block", true);
+	#tpBackSetting = this.createToggleSetting("TP back", false);
 
-	get range() {
-		return this.rangeSetting.value();
+
+	get #range() {
+		return this.#rangeSetting.value();
 	}
 
-	get autoBlock() {
-		return this.autoBlockSetting.value();
+	get #autoBlock() {
+		return this.#autoBlockSetting.value();
+	}
+	get #tpBack() {
+		return this.#tpBackSetting.value();
 	}
 
-	block() {
-		if (!this.autoBlock) {
+	#block() {
+		if (!this.#autoBlock) {
 			this.blocking = false;
 			return;
 		}
@@ -77,7 +82,7 @@ export default class TPAura extends Mod {
 		this.blocking = true;
 	}
 
-	unblock() {
+	#unblock() {
 		if (!this.blocking) return;
 		const { ClientSocket, BlockPos, EnumFacing, player, playerControllerMP, playerController } =
 			Miniblox;
@@ -98,7 +103,7 @@ export default class TPAura extends Mod {
 		this.blocking = false;
 	}
 
-	sendAttack(e: EntityLivingBase) {
+	#sendAttack(e: EntityLivingBase) {
 		const { ClientSocket, player } = Miniblox;
 		const box = e.getEntityBoundingBox();
 		const hitVec = player.getEyePos().clone().clamp(box.min, box.max);
@@ -160,7 +165,7 @@ export default class TPAura extends Mod {
 			);
 			player.attack(e);
 		}
-		if (outOfRange)
+		if (outOfRange && this.#tpBack)
 			ClientSocket.sendPacket(
 				new SPacketPlayerPosLook({
 					onGround: player.onGround,
@@ -172,12 +177,12 @@ export default class TPAura extends Mod {
 	}
 
 	@Subscribe("playerTick")
-	onTick() {
+	private onTick() {
 		// ghetto ahh method
-		const targets = findTargets(this.range);
+		const targets = findTargets(this.#range);
 		if (targets.length === 0) return;
-		this.block();
-		this.sendAttack(targets[0]);
-		this.unblock();
+		this.#block();
+		this.#sendAttack(targets[0]);
+		this.#unblock();
 	}
 }
