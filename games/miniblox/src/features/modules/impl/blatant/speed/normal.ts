@@ -8,15 +8,27 @@ import getMoveDirection from "@/utils/movement/movement";
 import Miniblox from "@/utils/refs/miniblox";
 
 export default class Normal extends SubModule<Speed> {
-	readonly speedSetting: SliderSetting = this.createSliderSetting("Speed", 1, 0.11, 6.0, 0.01);
+	readonly #speedSetting = this.createSliderSetting("Speed", 1, 0.11, 6.0, 0.01);
+	readonly #jumpSetting = this.createToggleSetting("Jump", false);
+
+	get #speed() {
+		return this.#speedSetting.value();
+	}
+
+	get #jump() {
+		return this.#jumpSetting.value();
+	}
 
 	@Subscribe("playerTick")
 	onTick(): void {
 		const { player } = Miniblox;
-		const dir = getMoveDirection(this.speedSetting.value());
+		const dir = getMoveDirection(this.#speed);
 
 		player.motion.x = dir.x;
 		player.motion.z = dir.z;
+		if (this.#jump && player.onGround) {
+			player.jump();
+		}
 	}
 
 	onDisable(): void {
@@ -26,6 +38,6 @@ export default class Normal extends SubModule<Speed> {
 	}
 
 	getTag(): string {
-		return `Normal ${this.speedSetting.value().toFixed(2)}`;
+		return `Normal ${this.#speedSetting.value().toFixed(2)}`;
 	}
 }
