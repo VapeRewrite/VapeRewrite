@@ -81,11 +81,12 @@ export default class Scaffold extends Mod {
 		function getSlot() {
 			// TODO: more checks
 			function isValidItem(i: ItemStack) {
+				if (!i) return false;
 				return isSolid(i.id);
 			}
 			{
 				const currentSlot = inv[wrap.s];
-				if (isValidItem(currentSlot)) return wrap.s;
+				if (currentSlot && isValidItem(currentSlot)) return wrap.s;
 			}
 			const slot = inv.findIndex(isValidItem);
 			return slot;
