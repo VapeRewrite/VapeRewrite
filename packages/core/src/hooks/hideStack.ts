@@ -4,10 +4,7 @@ import { parseStack, reconstructStack, type Stack } from "../utils/helpers/stack
 const w = unsafeWindow as typeof window;
 
 const origError = w.Error;
-const origProto = origError.prototype;
 const { defineProperty, getOwnPropertyDescriptor } = Object;
-
-const origDesc = getOwnPropertyDescriptor(new origError(), "stack");
 
 function removeOurLocations(trace: Stack[]): Stack[] {
 	return trace.filter((x) => {
@@ -31,38 +28,29 @@ function handleStackTrace(trace: string) {
 	const output = reconstructStack(modified);
 	return output;
 }
+function spoofStack(err: Error): Error {
+	const origDesc = getOwnPropertyDescriptor(err, "stack");
+	defineProperty(err, "stack", {
+		...origDesc,
+		get() {
+			const ts = this as Error;
+			const origTrace = origDesc.get.bind(ts)() as string;
+			const parsed = parseStack(ts, origTrace);
+			const modified = removeOurLocations(parsed);
+			const output = reconstructStack(modified);
+			return output;
+		},
+	});
+	return err;
+}
 
 export default function hook() {
 	w.Error = createProxy(origError, {
 		construct(target, argArray, newTarget) {
-			const err = Reflect.construct(target, argArray, newTarget);
-			defineProperty(err, "stack", {
-				...origDesc,
-				get() {
-					const ts = this as Error;
-					const origTrace = origDesc.get.bind(ts)() as string;
-					const parsed = parseStack(ts, origTrace);
-					const modified = removeOurLocations(parsed);
-					const output = reconstructStack(modified);
-					return output;
-				},
-			});
-			return err;
+			return spoofStack(Reflect.construct(target, argArray, newTarget));
 		},
 		apply(target, thisArg, argArray) {
-			const err = Reflect.apply(target, thisArg, argArray);
-			defineProperty(err, "stack", {
-				...origDesc,
-				get() {
-					const ts = this as Error;
-					const origTrace = origDesc.get.bind(ts)() as string;
-					const parsed = parseStack(ts, origTrace);
-					const modified = removeOurLocations(parsed);
-					const output = reconstructStack(modified);
-					return output;
-				},
-			});
-			return err;
+			return spoofStack(Reflect.apply(target, thisArg, argArray));
 		},
 	});
 	if ("captureStackTrace" in w.Error) {
