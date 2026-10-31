@@ -248,7 +248,7 @@ export default class Scaffold extends Mod {
 			}
 
 			if (isMoving && player.jumping) {
-				targetY = this.lastScaffoldY + 1;
+				targetY = playerY + 1;
 			} else {
 				targetY = this.lastScaffoldY;
 			}
