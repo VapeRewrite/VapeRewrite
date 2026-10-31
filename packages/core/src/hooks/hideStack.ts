@@ -4,6 +4,7 @@ import { parseStack, reconstructStack, type Stack } from "../utils/helpers/stack
 const w = unsafeWindow as typeof window;
 
 const origError = w.Error;
+const origProto = origError.prototype;
 const { defineProperty, getOwnPropertyDescriptor } = Object;
 
 const origDesc = getOwnPropertyDescriptor(new origError(), "stack");
@@ -25,27 +26,22 @@ const origCST =
 	"captureStackTrace" in origError ? (origError as V8Err).captureStackTrace : undefined;
 
 function handleStackTrace(trace: string) {
-	const parsed = parseStack(c, trace);
+	const parsed = parseStack(undefined, trace);
 	const modified = removeOurLocations(parsed);
 	const output = reconstructStack(modified);
 	return output;
 }
 
 export default function hook() {
-	w.Error = createProxy(origError, {
-		construct(target, argArray, newTarget) {
-			const c = Reflect.construct(target, argArray, newTarget);
-			defineProperty(c, "stack", {
-				...origDesc,
-				get() {
-					const origTrace = origDesc.get.bind(c)() as string;
-					const parsed = parseStack(c, origTrace);
-					const modified = removeOurLocations(parsed);
-					const output = reconstructStack(modified);
-					return output;
-				},
-			});
-			return c;
+	defineProperty(origProto, "stack", {
+		...origDesc,
+		get() {
+			const ts = this as Error;
+			const origTrace = origDesc.get.bind(ts)() as string;
+			const parsed = parseStack(ts, origTrace);
+			const modified = removeOurLocations(parsed);
+			const output = reconstructStack(modified);
+			return output;
 		},
 	});
 	if ("captureStackTrace" in w.Error) {
