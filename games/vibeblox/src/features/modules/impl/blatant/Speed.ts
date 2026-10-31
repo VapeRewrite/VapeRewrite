@@ -1,33 +1,40 @@
-import { Category, Mod } from "@vape-rewrite/core";
+import { Category, expose, Mod } from "@vape-rewrite/core";
 
 import Bus from "@/Bus";
+import isKeyDown from "@/utils/key";
 import Refs from "@/utils/refs/game";
+import THREE from "@/utils/refs/three";
+import type { Vector3 } from "three";
 
-type Vec3 = { x: number; y: number; z: number };
+type Vec2 = { x: number; z: number };
 
-function getPlayerMoveDir(speed: number, horizontalOnly = false): Vec3 {
-	const {
-		game: { script: api },
-	} = Refs;
-	const eye = api.getEye();
-	const look = api.getLook();
+function getMoveDir(): Vector3 {
+	const { currentCamera: camera } = THREE;
 
-	let dx = look.x - eye.x;
-	let dy = look.y - eye.y;
-	let dz = look.z - eye.z;
+	const forward = new THREE.Vector3();
+	camera.getWorldDirection(forward);
+	forward.y = 0;
+	forward.normalize();
 
-	if (horizontalOnly) {
-		dy = 0;
-	}
+	const worldUp = new THREE.Vector3(0, 1, 0);
+	const right = new THREE.Vector3().crossVectors(forward, worldUp).normalize();
 
-	const len = Math.hypot(dx, dy, dz) || 1;
+	const move = new THREE.Vector3();
 
-	return {
-		x: (dx / len) * speed,
-		y: (dy / len) * speed,
-		z: (dz / len) * speed,
-	};
+	if (isKeyDown("KeyW")) move.add(forward);
+	if (isKeyDown("KeyS")) move.sub(forward);
+	if (isKeyDown("KeyD")) move.add(right);
+	if (isKeyDown("KeyA")) move.sub(right);
+
+	if (move.lengthSq() > 0) move.normalize();
+	return move;
 }
+
+function getMoveSpeed(speed: number): Vec2 {
+	const dir = getMoveDir().multiplyScalar(speed);
+	return {x: dir.x, z: dir.z};
+}
+expose("getMoveDir", () => getMoveDir);
 
 export default class Speed extends Mod {
 	name = "Speed";
@@ -37,7 +44,7 @@ export default class Speed extends Mod {
 		const {
 			game: { script },
 		} = Refs;
-		const move = getPlayerMoveDir(3.5, true); // speed = 3.5, horizontal only
-		script.launch(move.x, move.y, move.z);
+		const move = getMoveSpeed(3.5); // speed = 3.5, horizontal only
+		script.launch(move.x, 1, move.z);
 	}
 }
