@@ -1,3 +1,4 @@
+import type { ArrayVec2 } from "@vape-rewrite/core";
 import type { AnyPacket } from "@wq2/miniblox-sdk";
 
 export interface IRotation {
@@ -12,6 +13,11 @@ export default class Rotation implements IRotation {
 		public yaw: number,
 		public pitch: number,
 	) {}
+
+	toAV2(): ArrayVec2 {
+		const { yaw, pitch } = this;
+		return [yaw, pitch];
+	}
 
 	static fromPacket(p?: IRotation): Rotation | undefined {
 		if (p?.yaw !== undefined && p?.pitch !== undefined) {

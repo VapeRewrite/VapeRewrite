@@ -1,6 +1,7 @@
 import type { EntityLivingBase, World } from "@wq2/miniblox-sdk";
+import type { Vector3Like } from "three";
 
-import { Category } from "@vape-rewrite/core";
+import { Category, type ArrayVec2 } from "@vape-rewrite/core";
 import { Mod } from "@vape-rewrite/core";
 import { deg2rad } from "@vape-rewrite/core";
 
@@ -45,7 +46,7 @@ export default class TPAura extends Mod {
 	#rangeSetting = this.createSliderSetting("Range", 20, 6, 48, 0.5);
 	#autoBlockSetting = this.createToggleSetting("Auto Block", true);
 	#tpBackSetting = this.createToggleSetting("TP back", false);
-
+	#tpModeSetting = this.createDropdownSetting("TP mode", ["Packet", "Move"]);
 
 	get #range() {
 		return this.#rangeSetting.value();
@@ -56,6 +57,10 @@ export default class TPAura extends Mod {
 	}
 	get #tpBack() {
 		return this.#tpBackSetting.value();
+	}
+
+	get #tpMode() {
+		return this.#tpModeSetting.value();
 	}
 
 	#block() {
@@ -103,6 +108,30 @@ export default class TPAura extends Mod {
 		this.blocking = false;
 	}
 
+	#tp(pos: Vector3Like, [yaw, pitch]: ArrayVec2) {
+		switch (this.#tpMode) {
+			case "Packet": {
+				const { ClientSocket, player } = Miniblox;
+				const SPacketPlayerPosLook = PacketRefs.s.SPacketPlayerPosLook;
+				ClientSocket.sendPacket(
+					new SPacketPlayerPosLook({
+						onGround: player.onGround,
+						pos,
+						yaw,
+						pitch,
+					}),
+				);
+				return;
+			}
+			case "Move": {
+				const { player } = Miniblox;
+				const { x, y, z } = pos;
+				player.setPositionAndRotation(x, y, z, yaw, pitch);
+				return;
+			}
+		}
+	}
+
 	#sendAttack(e: EntityLivingBase) {
 		const { ClientSocket, player } = Miniblox;
 		const box = e.getEntityBoundingBox();
@@ -110,26 +139,18 @@ export default class TPAura extends Mod {
 
 		stampTarget(e);
 
-		const aimPos = player.pos.clone().sub(e.pos);
+		const SON = player.ticksExisted % 4 === 0 ? -4 : 4;
+		const pos = e.pos.clone().setY(e.pos.y - SON);
+		const aimPos = pos.clone().sub(e.pos);
 		const newYaw = wrapAngleTo180_radians(Math.atan2(aimPos.x, aimPos.z) - player.lastReportedYaw);
 		const checkYaw = wrapAngleTo180_radians(Math.atan2(aimPos.x, aimPos.z) - player.yaw);
 		const outOfRange = player.getDistanceSqToEntity(e) > MAX_DIST_SQ;
 
-		const SPacketPlayerPosLook = outOfRange ? PacketRefs.s.SPacketPlayerPosLook : undefined;
 		const needsRots = Math.abs(checkYaw) > MAX_OFFSET_RAD;
 		const rots = needsRots
 			? new Rotation(player.lastReportedYaw + newYaw, RotationManager.activeRotation.pitch)
 			: RotationManager.activeRotation;
-		if (outOfRange) {
-			ClientSocket.sendPacket(
-				new SPacketPlayerPosLook({
-					onGround: player.onGround,
-					pos: e.pos,
-					yaw: rots.yaw,
-					pitch: rots.pitch,
-				}),
-			);
-		}
+		if (outOfRange) this.#tp(pos, rots.toAV2());
 
 		if (needsRots) {
 			RotationManager.scheduleRotation(new RotationPlan(rots, MovementCorrection.None, 1));
@@ -165,15 +186,10 @@ export default class TPAura extends Mod {
 			);
 			player.attack(e);
 		}
-		if (outOfRange && this.#tpBack)
-			ClientSocket.sendPacket(
-				new SPacketPlayerPosLook({
-					onGround: player.onGround,
-					pos: player.pos,
-					yaw: player.yaw,
-					pitch: player.pitch,
-				}),
-			);
+		if (outOfRange && this.#tpBack) {
+			const { yaw, pitch } = player;
+			this.#tp(player.pos, [yaw, pitch]);
+		}
 	}
 
 	@Subscribe("playerTick")
