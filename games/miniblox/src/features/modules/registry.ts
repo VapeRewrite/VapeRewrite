@@ -28,7 +28,6 @@ import ChestStealer from "./impl/minigames/ChestStealer";
 import MurderMystery from "./impl/minigames/MurderMystery";
 // render
 import Chams from "./impl/render/Chams";
-import HudManagerModule from "./impl/render/HudManager";
 // utility
 import AdBypass from "./impl/utility/AdBypass";
 import AntiBan from "./impl/utility/AntiBan";
@@ -52,6 +51,7 @@ import NoFall from "./impl/world/NoFall";
 import Timer from "./impl/world/Timer";
 import Lunge from "./impl/combat/Lunge";
 import TPAura from "./impl/blatant/TPAura";
+import OreESP from "./impl/render/OreESP";
 
 export const mm = create(
 	// blatant
@@ -88,8 +88,7 @@ export const mm = create(
 
 	// render
 	new Chams(),
-	// TODO: phase this out, as it should be replaced with the overlay thing
-	HudManagerModule.INSTANCE,
+	new OreESP,
 
 	// utility
 	AdBypass.INSTANCE,

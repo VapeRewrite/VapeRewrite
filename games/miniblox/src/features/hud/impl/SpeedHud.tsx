@@ -27,8 +27,10 @@ export default class SpeedHud extends HudElement {
 				const { player } = Miniblox;
 				if (!player) return this.#updateFrame = requestAnimationFrame(update);
 				const vel = player.motion;
-				const speed = Math.round(Math.hypot(vel.x, vel.z) * 100) / 100;
-				this.speedSignal[1](speed);
+				// b/t
+				const bpt = Math.round(Math.hypot(vel.x, vel.z) * 100) / 100;
+				const bps = bpt * 20;
+				this.speedSignal[1](bps);
 			} catch {}
 			this.#updateFrame = requestAnimationFrame(update);
 		};

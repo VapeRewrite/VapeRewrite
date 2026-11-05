@@ -6,7 +6,6 @@ import { createSignal } from "solid-js";
 
 import { getMostRecentTarget } from "@/utils/movement/TargetTracker";
 import Miniblox from "@/utils/refs/miniblox";
-import HudManagerModule from "@/features/modules/impl/render/HudManager";
 
 interface TargetInfo {
 	name: string;
@@ -154,7 +153,7 @@ export default class TargetHud extends HudElement {
 
 	private resolveTarget(): EntityLivingBase | null {
 		// Show the local player while the HUD editor preview is active.
-		if (HudManagerModule.INSTANCE.stateAccessor()) return Miniblox.player ?? null;
+		if (Miniblox.chat.showInput) return Miniblox.player ?? null;
 		const recent = getMostRecentTarget();
 		if (recent) return recent;
 		return null;
