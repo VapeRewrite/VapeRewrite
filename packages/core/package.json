@@ -17,6 +17,6 @@
 		"@solidjs/web": "catalog:"
 	},
 	"devDependencies": {
-		"tsdown": "^0.23.1"
+		"tsdown": "^0.23.5"
 	}
 }
