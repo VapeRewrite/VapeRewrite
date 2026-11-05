@@ -19,6 +19,7 @@ export default class Criticals extends Mod {
 	static sendCritPackets() {
 		const { ClientSocket, player } = Miniblox;
 		const SPacketPlayerPosLook = c2s("SPacketPlayerPosLook");
+		if (!SPacketPlayerPosLook) return;
 		for (const offset of CRIT_OFFSETS) {
 			const pos = {
 				x: player.pos.x,
