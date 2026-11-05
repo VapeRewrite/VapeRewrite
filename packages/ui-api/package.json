@@ -4,5 +4,9 @@
 	"private": true,
 	"type": "module",
 	"main": "./src/index.ts",
-	"types": "./src/index.ts"
+	"types": "./src/index.ts",
+	"scripts": {
+		"build": "bunx --bun tsdown",
+		"dev": "bunx --bun tsdown -w"
+	}
 }

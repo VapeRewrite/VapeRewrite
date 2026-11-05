@@ -8,6 +8,10 @@
 	"publishConfig": {
 		"access": "public"
 	},
+	"scripts": {
+		"build": "bunx --bun tsdown",
+		"dev": "bunx --bun tsdown -w"
+	},
 	"files": ["dist", "types", "meta.js", "ReadME.md", "LICENSE.md"],
 	"dependencies": {
 		"@vape-rewrite/ui-api": "workspace:*",

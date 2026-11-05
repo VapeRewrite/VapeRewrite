@@ -5,6 +5,10 @@
 	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "bunx tsdown",
+		"dev": "bunx tsdown -w"
+	},
 	"dependencies": {
 		"@vape-rewrite/core": "workspace:*",
 		"@vape-rewrite/ui-api": "workspace:*",
