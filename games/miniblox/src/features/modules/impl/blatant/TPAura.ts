@@ -139,8 +139,7 @@ export default class TPAura extends Mod {
 
 		stampTarget(e);
 
-		const SON = player.ticksExisted % 4 === 0 ? -4 : 4;
-		const pos = e.pos.clone().setY(e.pos.y - SON);
+		const pos = e.pos.clone().setY(e.pos.y - 2);
 		const aimPos = pos.clone().sub(e.pos);
 		const newYaw = wrapAngleTo180_radians(Math.atan2(aimPos.x, aimPos.z) - player.lastReportedYaw);
 		const checkYaw = wrapAngleTo180_radians(Math.atan2(aimPos.x, aimPos.z) - player.yaw);
