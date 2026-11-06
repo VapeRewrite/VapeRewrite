@@ -1,19 +1,13 @@
-import type { Entity, EntityLivingBase } from "@wq2/miniblox-sdk";
+import type { EntityLivingBase } from "@wq2/miniblox-sdk";
 
 import { teamsByServerEnabled } from "@vape-rewrite/core";
 
 import Miniblox from "../refs/miniblox";
 
-export function getTeam(entity: Entity) {
-	const entry = Miniblox.game.playerList.playerDataMap.get(entity.id);
-	if (!entry) return;
-	return entry.color !== "white" ? entry.color : undefined;
-}
-
 export function findTargets(range = 6, _angle = 360, checkWalls = false): EntityLivingBase[] {
-	const { player, EntityLivingBase, world } = Miniblox;
+	const { player, EntityLivingBase, EntityPlayer, world } = Miniblox;
 	if (world === undefined) throw new Error("findTargets called while world is null");
-	const localTeam = getTeam(player);
+	const localTeam = player.team;
 
 	const sqRange = range * range;
 	// auto remapping proxy!
@@ -24,8 +18,9 @@ export function findTargets(range = 6, _angle = 360, checkWalls = false): Entity
 		if (!base) return false;
 		const distCheck = player.getDistanceSqToEntity(e) < sqRange;
 		if (!distCheck) return false;
-		if (teamsByServerEnabled()) {
-			const teamCheck = localTeam && localTeam === getTeam(e);
+		if (teamsByServerEnabled() && e instanceof EntityPlayer) {
+			const otherTeam = e.team;
+			const teamCheck = localTeam && otherTeam && !localTeam.canAttack(otherTeam);
 			if (teamCheck) return false;
 		}
 		const wallCheck = checkWalls && !player.canEntityBeSeen(e);

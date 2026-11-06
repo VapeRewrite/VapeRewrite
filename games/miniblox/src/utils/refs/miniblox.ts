@@ -29,6 +29,7 @@ import type {
 	SkinManager,
 	TextureManager,
 	ItemSpear,
+	EntityPlayer,
 } from "@wq2/miniblox-sdk";
 
 import { scriptEl } from "@/hooks/gameScript";
@@ -79,6 +80,7 @@ let _EnumFacing: typeof EnumFacing | undefined;
 let _Enchantments: typeof Enchantments | undefined;
 let _hud3D: Hud3D | undefined;
 let _EntityLivingBase: typeof EntityLivingBase | undefined;
+let _EntityPlayer: typeof EntityPlayer | undefined;
 let _playerController: PlayerController | undefined;
 let _Blocks: AllBlocks | undefined;
 let _Materials: typeof Materials | undefined;
@@ -358,6 +360,20 @@ const Miniblox = {
 					).constructor;
 					return Object.getOwnPropertyNames(ctor).includes("sprintingSpeedBoostModifier");
 				})?.constructor as typeof EntityLivingBase | undefined,
+		);
+	},
+	get EntityPlayer() {
+		return initOrR(
+			_EntityPlayer,
+			() =>
+				Array.from(getInheritanceChain(Miniblox.player)).find((x) => {
+					const ctor = (
+						x as unknown as EntityPlayer & {
+							constructor: typeof EntityPlayer;
+						}
+					).constructor;
+					return Object.getOwnPropertyNames(ctor).includes("getBedSpawnLocation");
+				})?.constructor as typeof EntityPlayer | undefined,
 		);
 	},
 
