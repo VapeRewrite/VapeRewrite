@@ -59,7 +59,7 @@ function defineGame(name: string, plugins?: RolldownPlugin[]): RolldownOptions {
 			typescript: {
 				optimizeConstEnums: true,
 				optimizeEnums: true,
-				removeClassFieldsWithoutInitializer: true,
+				removeClassFieldsWithoutInitializer: false,
 			},
 			assumptions: {
 				setPublicClassFields: true,
