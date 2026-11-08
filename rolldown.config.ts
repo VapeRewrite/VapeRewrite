@@ -1,9 +1,7 @@
 /// <reference types="@types/bun" />
-import swc from "@wq2/rolldown-plugin-swc";
 import { readPackageUp } from "read-package-up";
-import { defineConfig, RolldownOptions, RolldownPlugin } from "rolldown";
+import { defineConfig, type RolldownOptions, type RolldownPlugin } from "rolldown";
 import userscript from "rolldown-plugin-userscript";
-import { withFilter } from "rolldown/filter";
 
 import minifyCSS from "./cssMinifyPlugin";
 import minify from "./minifyPlugin";
@@ -26,10 +24,7 @@ export const REAL_CLIENT_NAME =
  * - `packages/name/src/index.ts` is the entrypoint
  * - tsconfig in `packages/name/tsconfig.json`
  */
-function defineGame(
-	name: string,
-	plugins?: RolldownPlugin[],
-): RolldownOptions {
+function defineGame(name: string, plugins?: RolldownPlugin[]): RolldownOptions {
 	const FOLDER = `games/${name}`;
 	return {
 		input: `${FOLDER}/src/index.ts`,
@@ -38,36 +33,18 @@ function defineGame(
 			".css": "text",
 		},
 		plugins: [
-			// Babel, ESBuild, and SWC supports 2023-11 decorators
-			// ESBuild is written in Go (garbage collector) and Babel is written in JS (not native),
-			// I chose SWC.
-			withFilter(
-				swc({
-					jsc: {
-						parser: { decorators: true, syntax: "typescript" },
-						target: "esnext",
-						transform: { decoratorVersion: "2023-11" },
-					},
-				}),
-				// Only run this transform if the file contains a decorator (and if it's a JS or TS file).
-				{
-					transform: {
-						code: ["@Subscribe", "@Bus.Subscribe"],
-						moduleType: ["js", "ts", "jsx", "tsx"],
-					},
-				},
-			),
-			minifyCSS(),
 			solid(),
 			plugins,
 			// this MUST be before UserScript, so the comments from it won't be removed.
-			IS_PROD ? minify({
-				compress: false,
-				mangle: false,
-				codegen: {
-					removeWhitespace: true
-				}
-			}) : undefined,
+			IS_PROD
+				? minify({
+						compress: false,
+						mangle: false,
+						codegen: {
+							removeWhitespace: true,
+						},
+					})
+				: undefined,
 			userscript((meta: string) => {
 				const newMeta = meta
 					.replace("process.env.AUTHOR", packageJson.author?.name ?? "Unspecified")
@@ -81,14 +58,14 @@ function defineGame(
 			typescript: {
 				optimizeConstEnums: true,
 				optimizeEnums: true,
-				removeClassFieldsWithoutInitializer: true
+				removeClassFieldsWithoutInitializer: true,
 			},
 			assumptions: {
 				setPublicClassFields: true,
 				noDocumentAll: true,
 				// ignoreFunctionLength: true,
 				// objectRestNoSymbols: true,
-				pureGetters: true
+				pureGetters: true,
 			},
 		},
 
@@ -96,17 +73,25 @@ function defineGame(
 			format: "iife",
 			dir: `dist/${name}/`,
 			entryFileNames: `${name}.user.js`,
-			minify: IS_PROD ? {
-				compress: true,
-				mangle: true,
-				codegen: {removeWhitespace: false}
-			} : {
-				codegen: {removeWhitespace: false},
-				compress: {keepNames: {function: true, class: true}}
-			},
+			minify: IS_PROD
+				? {
+						compress: true,
+						mangle: true,
+						codegen: { removeWhitespace: false },
+					}
+				: {
+						codegen: { removeWhitespace: false },
+						compress: { keepNames: { function: true, class: true } },
+					},
 			sourcemap: "inline",
 		},
-		tsconfig: `${FOLDER}/tsconfig.json`
+		optimization: { inlineConst: true, pifeForModuleWrappers: true },
+		experimental: {
+			attachDebugInfo: IS_PROD ? "none" : "simple",
+			nativeMagicString: true,
+			lazyBarrel: true
+		},
+		tsconfig: `${FOLDER}/tsconfig.json`,
 	};
 }
 
@@ -116,5 +101,5 @@ export default defineConfig([
 	defineGame("narrowOne"),
 	defineGame("classicNarrowOne"),
 	defineGame("vibeblox"),
-	defineGame("kirka")
+	defineGame("kirka"),
 ]);
