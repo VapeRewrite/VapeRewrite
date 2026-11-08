@@ -33,6 +33,7 @@ function defineGame(name: string, plugins?: RolldownPlugin[]): RolldownOptions {
 			".css": "text",
 		},
 		plugins: [
+			minifyCSS(),
 			solid(),
 			plugins,
 			// this MUST be before UserScript, so the comments from it won't be removed.
