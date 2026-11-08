@@ -5,7 +5,7 @@ import type { Material, Mesh } from "three";
 import { CancelableWrapper, Priority } from "@vape-rewrite/core";
 
 import Refs from "@/hooks/game";
-import { AnyPacket } from "@/hooks/packetHook";
+import type { AnyPacket } from "@/hooks/packetHook";
 import { mod as protocol } from "@/utils/wrappers/protocol";
 import { mod as THREE } from "@/utils/wrappers/three";
 

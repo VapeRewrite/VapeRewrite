@@ -1,5 +1,5 @@
 import { Category, Mod } from "@vape-rewrite/core";
-import { Vector3 } from "three";
+import type { Vector3 } from "three";
 
 import Bus from "@/Bus";
 import { hook, unhook } from "@/hooks/bowHook";

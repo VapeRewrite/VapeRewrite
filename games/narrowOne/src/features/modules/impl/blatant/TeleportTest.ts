@@ -5,8 +5,8 @@ import Bus from "@/Bus";
 import game from "@/utils/refs/game";
 import sendPosSilently from "@/utils/movement/sendPos";
 import { CancelableWrapper } from "@vape-rewrite/core";
-import { ServerMove } from "@/events";
-import { Vector3 } from "three";
+import type { ServerMove } from "@/events";
+import type { Vector3 } from "three";
 
 export default class TeleportTest extends Mod {
 	public name = "TeleportTest";
