@@ -45,6 +45,23 @@ function defineGame(
 					jsc: {
 						parser: { decorators: true, syntax: "typescript" },
 						target: "esnext",
+						assumptions: {
+							noDocumentAll: true,
+							ignoreFunctionLength: true,
+							ignoreFunctionName: true,
+							superIsCallableConstructor: true,
+							constantReexports: true,
+							constantSuper: true,
+							noClassCalls: true,
+							arrayLikeIsIterable: true,
+							noNewArrows: true,
+							noIncompleteNsImportDetection: true,
+							objectRestNoSymbols: true,
+							setClassMethods: true,
+							setSpreadProperties: true,
+							pureGetters: true,
+							setPublicClassFields: true
+						},
 						transform: { decoratorVersion: "2023-11" },
 					},
 				}),
