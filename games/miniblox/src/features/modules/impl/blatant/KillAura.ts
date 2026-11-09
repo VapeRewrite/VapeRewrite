@@ -29,41 +29,41 @@ export default class KillAura extends Mod {
 	public name = "KillAura";
 	public category = Category.BLATANT;
 	// private attackDelay = Date.now();
-	private blocking = false;
+	#blocking = false;
 
 	// Settings
-	private rangeSetting = this.createSliderSetting("Range", 6, 3, 10, 0.5);
-	private angleSetting = this.createSliderSetting("Angle", 360, 1, 360, 1);
-	private autoBlockSetting = this.createToggleSetting("Auto Block", true);
-	private wallCheckSetting = this.createToggleSetting("Wall Check", false);
-	private movementCorrectionSetting = this.createDropdownSetting("Movement Correction", SETTING);
+	#rangeSetting = this.createSliderSetting("Range", 6, 3, 10, 0.5);
+	#angleSetting = this.createSliderSetting("Angle", 360, 1, 360, 1);
+	#autoBlockSetting = this.createToggleSetting("Auto Block", true);
+	#wallCheckSetting = this.createToggleSetting("Wall Check", false);
+	#movementCorrectionSetting = this.createDropdownSetting("Movement Correction", SETTING);
 
-	get movementCorrection() {
-		return this.movementCorrectionSetting.value();
+	get #movementCorrection() {
+		return this.#movementCorrectionSetting.value();
 	}
 
-	get range() {
-		return this.rangeSetting.value();
+	get #range() {
+		return this.#rangeSetting.value();
 	}
 
-	get angle() {
-		return this.angleSetting.value();
+	get #angle() {
+		return this.#angleSetting.value();
 	}
 
-	get autoBlock() {
-		return this.autoBlockSetting.value();
+	get #autoBlock() {
+		return this.#autoBlockSetting.value();
 	}
 
-	get wallCheck() {
-		return this.wallCheckSetting.value();
+	get #wallCheck() {
+		return this.#wallCheckSetting.value();
 	}
 
-	block() {
-		if (!this.autoBlock) {
-			this.blocking = false;
+	#block() {
+		if (!this.#autoBlock) {
+			this.#blocking = false;
 			return;
 		}
-		if (this.blocking) return;
+		if (this.#blocking) return;
 		const { ClientSocket, playerControllerMP, player, world, playerController } = Miniblox;
 		// auto-remapping proxy!
 		playerControllerMP.syncItem();
@@ -79,11 +79,11 @@ export default class KillAura extends Mod {
 		} else {
 			playerController.sendUseItem(player, world as unknown as World, player.getHeldItem());
 		}
-		this.blocking = true;
+		this.#blocking = true;
 	}
 
-	unblock() {
-		if (!this.blocking) return;
+	#unblock() {
+		if (!this.#blocking) return;
 		const { ClientSocket, BlockPos, EnumFacing, player, playerControllerMP, playerController } =
 			Miniblox;
 		// auto-remapping proxy again lol
@@ -100,10 +100,10 @@ export default class KillAura extends Mod {
 				}),
 			);
 		}
-		this.blocking = false;
+		this.#blocking = false;
 	}
 
-	sendAttack(e: EntityLivingBase, first: boolean) {
+	#sendAttack(e: EntityLivingBase) {
 		const { ClientSocket, player } = Miniblox;
 		const box = e.getEntityBoundingBox();
 		const hitVec = player.getEyePos().clone().clamp(box.min, box.max);
@@ -127,11 +127,11 @@ export default class KillAura extends Mod {
 
 		const rots = new Rotation(player.lastReportedYaw + newYaw, newPitch);
 
-		if (Math.abs(checkYaw) < deg2rad(this.angle)) {
+		if (Math.abs(checkYaw) < deg2rad(this.#angle)) {
 			RotationManager.scheduleRotation(
 				new RotationPlan(
 					rots,
-					this.movementCorrection.value,
+					this.#movementCorrection.value,
 					1,
 				),
 			);
@@ -172,14 +172,11 @@ export default class KillAura extends Mod {
 
 	@Subscribe("playerTick")
 	onTick() {
-		// ghetto ahh method
-		let first = true;
-		const targets = findTargets(this.range, this.angle, this.wallCheck);
-		this.block();
+		const targets = findTargets(this.#range, this.#angle, this.#wallCheck);
+		this.#block();
 		for (const target of targets) {
-			this.sendAttack(target, first);
-			first = false;
+			this.#sendAttack(target);
 		}
-		this.unblock();
+		this.#unblock();
 	}
 }
