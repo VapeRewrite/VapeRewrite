@@ -32,9 +32,9 @@ const MAX_DIST = 3.5;
 const MAX_DIST_SQ = MAX_DIST * MAX_DIST;
 
 export default class TPAura extends Mod {
-	public name = "TPAura";
-	public category = Category.BLATANT;
-	private blocking = false;
+	name = "TPAura";
+	category = Category.BLATANT;
+	#blocking = false;
 
 	// Settings
 	#rangeSetting = this.createSliderSetting("Range", 20, 6, 48, 0.5);
@@ -59,10 +59,10 @@ export default class TPAura extends Mod {
 
 	#block() {
 		if (!this.#autoBlock) {
-			this.blocking = false;
+			this.#blocking = false;
 			return;
 		}
-		if (this.blocking) return;
+		if (this.#blocking) return;
 		const { ClientSocket, playerControllerMP, player, world, playerController } = Miniblox;
 		// auto-remapping proxy!
 		playerControllerMP.syncItem();
@@ -78,11 +78,11 @@ export default class TPAura extends Mod {
 		} else {
 			playerController.sendUseItem(player, world as unknown as World, player.getHeldItem());
 		}
-		this.blocking = true;
+		this.#blocking = true;
 	}
 
 	#unblock() {
-		if (!this.blocking) return;
+		if (!this.#blocking) return;
 		const { ClientSocket, BlockPos, EnumFacing, player, playerControllerMP, playerController } =
 			Miniblox;
 		// auto-remapping proxy again lol
@@ -99,7 +99,7 @@ export default class TPAura extends Mod {
 				}),
 			);
 		}
-		this.blocking = false;
+		this.#blocking = false;
 	}
 
 	#tp(pos: Vector3Like, [yaw, pitch]: ArrayVec2) {
