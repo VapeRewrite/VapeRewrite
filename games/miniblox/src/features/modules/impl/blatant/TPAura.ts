@@ -26,7 +26,7 @@ function wrapAngleTo180_radians(angle: number): number {
 }
 
 /** max distance you can attack a player from */
-const MAX_DIST = 6;
+const MAX_DIST = 3.5;
 
 /** max distance squared */
 const MAX_DIST_SQ = MAX_DIST * MAX_DIST;
@@ -118,7 +118,17 @@ export default class TPAura extends Mod {
 				return;
 			}
 			case "Move": {
-				const { player } = Miniblox;
+				const { ClientSocket, player } = Miniblox;
+				const SPacketPlayerPosLook = PacketRefs.s.SPacketPlayerPosLook;
+				if (SPacketPlayerPosLook)
+					ClientSocket.sendPacket(
+						new SPacketPlayerPosLook({
+							onGround: player.onGround,
+							pos,
+							yaw,
+							pitch,
+						}),
+					);
 				const { x, y, z } = pos;
 				player.setPositionAndRotation(x, y, z, yaw, pitch);
 				return;
@@ -133,24 +143,23 @@ export default class TPAura extends Mod {
 
 		stampTarget(e);
 
-		const SON = player.ticksExisted % 4 === 0 ? -4 : 4;
-		const pos = e.pos.clone().setY(e.pos.y - SON);
+		const pos = e.pos.clone().setY(e.pos.y + e.getEyeHeight());
 		const aimPos = pos.clone().sub(e.pos);
 		const newYaw = wrapAngleTo180_radians(Math.atan2(aimPos.x, aimPos.z) - player.lastReportedYaw);
 		const outOfRange = player.getDistanceSqToEntity(e) > MAX_DIST_SQ;
 
-		const rots = new Rotation(player.lastReportedYaw + newYaw, RotationManager.activeRotation.pitch);
+		const rots = new Rotation(player.lastReportedYaw + newYaw, -1);
 		if (outOfRange) this.#tp(pos, rots.toAV2());
 
-		RotationManager.scheduleRotation(new RotationPlan(rots, MovementCorrection.None, 1));
+		RotationManager.scheduleRotation(new RotationPlan(rots, MovementCorrection.None, 2));
 
 		const { SPacketUseEntity } = PacketRefs.s;
 		if (SPacketUseEntity === undefined) {
 			// in case you haven't attacked yet
 			const [oldYaw, oldPitch] = [player.yaw, player.pitch];
 			const oldHitVec = Miniblox.playerController.objectMouseOver.hitVec;
-			player.yaw = RotationManager.activeRotation.yaw;
-			player.pitch = RotationManager.activeRotation.pitch;
+			player.yaw = rots.yaw;
+			player.pitch = rots.pitch;
 			Miniblox.playerController.objectMouseOver.hitVec = hitVec;
 			Miniblox.playerController.attackEntity(e);
 			Miniblox.playerController.objectMouseOver.hitVec = oldHitVec;
@@ -167,8 +176,8 @@ export default class TPAura extends Mod {
 						z: hitVec.z,
 					},
 					//@ts-expect-error: it's new
-					yaw: RotationManager.activeRotation.yaw,
-					pitch: RotationManager.activeRotation.pitch,
+					yaw: rots.yaw,
+					pitch: rots.pitch,
 					sequence: player.inputSequenceNumber,
 				}),
 			);
