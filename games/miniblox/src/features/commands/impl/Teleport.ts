@@ -11,7 +11,7 @@ dispatcher.register(
 					const x = e.get<number>("x");
 					const y = e.get<number>("y");
 					const z = e.get<number>("z");
-					const pos = Miniblox.player.pos.clone();
+					Miniblox.player.setPosition(x, y, z);
 					Miniblox.chat.addChat({
 						text: `Teleported to ${x} ${y} ${z}`,
 						color: "blue",
