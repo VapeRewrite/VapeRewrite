@@ -6,4 +6,4 @@ import "./impl/GUIUtils";
 import "./impl/Panic";
 import "./impl/Say";
 import "./impl/Toggle";
-
+import "./impl/Teleport";
