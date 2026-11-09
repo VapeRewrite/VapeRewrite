@@ -3,7 +3,6 @@ import type { Vector3Like } from "three";
 
 import { Category, type ArrayVec2 } from "@vape-rewrite/core";
 import { Mod } from "@vape-rewrite/core";
-import { deg2rad } from "@vape-rewrite/core";
 
 import { Subscribe } from "@/event/Bus";
 import RotationManager, { RotationPlan } from "@/utils/aiming/rotate";
@@ -25,11 +24,6 @@ function wrapAngleTo180_radians(angle: number): number {
 	}
 	return ang;
 }
-
-/** max offset you can be looking away from a player in degrees */
-const MAX_OFFSET_DEG = 30;
-/** max offset you can be looking away from a player in radians */
-const MAX_OFFSET_RAD = deg2rad(MAX_OFFSET_DEG);
 
 /** max distance you can attack a player from */
 const MAX_DIST = 6;
@@ -143,18 +137,12 @@ export default class TPAura extends Mod {
 		const pos = e.pos.clone().setY(e.pos.y - SON);
 		const aimPos = pos.clone().sub(e.pos);
 		const newYaw = wrapAngleTo180_radians(Math.atan2(aimPos.x, aimPos.z) - player.lastReportedYaw);
-		const checkYaw = wrapAngleTo180_radians(Math.atan2(aimPos.x, aimPos.z) - player.yaw);
 		const outOfRange = player.getDistanceSqToEntity(e) > MAX_DIST_SQ;
 
-		const needsRots = Math.abs(checkYaw) > MAX_OFFSET_RAD;
-		const rots = needsRots
-			? new Rotation(player.lastReportedYaw + newYaw, RotationManager.activeRotation.pitch)
-			: RotationManager.activeRotation;
+		const rots = new Rotation(player.lastReportedYaw + newYaw, RotationManager.activeRotation.pitch);
 		if (outOfRange) this.#tp(pos, rots.toAV2());
 
-		if (needsRots) {
-			RotationManager.scheduleRotation(new RotationPlan(rots, MovementCorrection.None, 1));
-		}
+		RotationManager.scheduleRotation(new RotationPlan(rots, MovementCorrection.None, 1));
 
 		const { SPacketUseEntity } = PacketRefs.s;
 		if (SPacketUseEntity === undefined) {
