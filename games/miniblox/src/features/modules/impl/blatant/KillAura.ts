@@ -114,10 +114,23 @@ export default class KillAura extends Mod {
 		const newYaw = wrapAngleTo180_radians(Math.atan2(aimPos.x, aimPos.z) - player.lastReportedYaw);
 		const checkYaw = wrapAngleTo180_radians(Math.atan2(aimPos.x, aimPos.z) - player.yaw);
 
-		if (first && Math.abs(checkYaw) < deg2rad(this.angle)) {
+		// screw math, this pitch calculation is catgpt.
+		const horizontalDist = Math.sqrt(
+			aimPos.x * aimPos.x + aimPos.z * aimPos.z
+		);
+
+		const targetPitch = Math.atan2(aimPos.y, horizontalDist);
+
+		const playerPitchRadians = player.pitch * (Math.PI / 2);
+
+		const newPitch = (targetPitch - playerPitchRadians) / (Math.PI / 2);
+
+		const rots = new Rotation(player.lastReportedYaw + newYaw, newPitch);
+
+		if (Math.abs(checkYaw) < deg2rad(this.angle)) {
 			RotationManager.scheduleRotation(
 				new RotationPlan(
-					new Rotation(player.lastReportedYaw + newYaw, RotationManager.activeRotation.pitch),
+					rots,
 					this.movementCorrection.value,
 					1,
 				),
@@ -128,12 +141,13 @@ export default class KillAura extends Mod {
 		if (SPacketUseEntity === undefined) {
 			// in case you haven't attacked yet
 			const [oldYaw, oldPitch] = [player.yaw, player.pitch];
-			const oldHitVec = Miniblox.playerController.objectMouseOver.hitVec;
-			player.yaw = RotationManager.activeRotation.yaw;
-			player.pitch = RotationManager.activeRotation.pitch;
-			Miniblox.playerController.objectMouseOver.hitVec = hitVec;
-			Miniblox.playerController.attackEntity(e);
-			Miniblox.playerController.objectMouseOver.hitVec = oldHitVec;
+			const {playerController: pc, playerController: {objectMouseOver}} = Miniblox;
+			const oldHitVec = objectMouseOver.hitVec;
+			player.yaw = rots.yaw;
+			player.pitch = rots.pitch;
+			objectMouseOver.hitVec = hitVec;
+			pc.attackEntity(e);
+			objectMouseOver.hitVec = oldHitVec;
 			player.yaw = oldYaw;
 			player.pitch = oldPitch;
 		} else {
@@ -147,8 +161,8 @@ export default class KillAura extends Mod {
 						z: hitVec.z,
 					},
 					//@ts-expect-error: it's new
-					yaw: RotationManager.activeRotation.yaw,
-					pitch: RotationManager.activeRotation.pitch,
+					yaw: rots.yaw,
+					pitch: rots.pitch,
 					sequence: player.inputSequenceNumber,
 				}),
 			);
