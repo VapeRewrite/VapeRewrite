@@ -1,29 +1,17 @@
 import type { EntityLivingBase, World } from "@wq2/miniblox-sdk";
 
-import { Category } from "@vape-rewrite/core";
+import { Category, SimpleVec3 } from "@vape-rewrite/core";
 import { Mod } from "@vape-rewrite/core";
 import { deg2rad } from "@vape-rewrite/core";
 
 import { Subscribe } from "@/event/Bus";
+import calculateRotations from "@/utils/aiming/lookAt";
 import RotationManager, { RotationPlan } from "@/utils/aiming/rotate";
-import Rotation from "@/utils/aiming/rotation";
 import { SETTING } from "@/utils/movement/MovementCorrection";
 import { findTargets } from "@/utils/movement/target";
 import { stampTarget } from "@/utils/movement/TargetTracker";
 import PacketRefs from "@/utils/network/packetRefs";
 import Miniblox from "@/utils/refs/miniblox";
-
-function wrapAngleTo180_radians(angle: number): number {
-	let ang = angle;
-	ang = ang % (Math.PI * 2);
-	if (ang >= Math.PI) {
-		ang -= Math.PI * 2;
-	}
-	if (ang < -Math.PI) {
-		ang += Math.PI * 2;
-	}
-	return ang;
-}
 
 export default class KillAura extends Mod {
 	name = "KillAura";
@@ -110,38 +98,24 @@ export default class KillAura extends Mod {
 
 		stampTarget(e);
 
-		const aimPos = player.pos.clone().sub(e.pos);
-		const newYaw = wrapAngleTo180_radians(Math.atan2(aimPos.x, aimPos.z) - player.lastReportedYaw);
-		const checkYaw = wrapAngleTo180_radians(Math.atan2(aimPos.x, aimPos.z) - player.yaw);
-
-		// screw math, this pitch calculation is catgpt.
-		const horizontalDist = Math.sqrt(
-			aimPos.x * aimPos.x + aimPos.z * aimPos.z
+		const rots = calculateRotations(
+			SimpleVec3.fromThreeVec3(player.getEyePos()),
+			SimpleVec3.fromThreeVec3(e.pos),
 		);
+		const diffYaw = player.newYaw - rots.yaw;
 
-		const targetPitch = Math.atan2(aimPos.y, horizontalDist);
-
-		const playerPitchRadians = player.pitch * (Math.PI / 2);
-
-		const newPitch = (targetPitch - playerPitchRadians) / (Math.PI / 2);
-
-		const rots = new Rotation(player.lastReportedYaw + newYaw, newPitch);
-
-		if (Math.abs(checkYaw) < deg2rad(this.#angle)) {
-			RotationManager.scheduleRotation(
-				new RotationPlan(
-					rots,
-					this.#movementCorrection.value,
-					1,
-				),
-			);
+		if (Math.abs(diffYaw) < deg2rad(this.#angle)) {
+			RotationManager.scheduleRotation(new RotationPlan(rots, this.#movementCorrection.value, 1));
 		}
 
 		const { SPacketUseEntity } = PacketRefs.s;
 		if (SPacketUseEntity === undefined) {
 			// in case you haven't attacked yet
 			const [oldYaw, oldPitch] = [player.yaw, player.pitch];
-			const {playerController: pc, playerController: {objectMouseOver}} = Miniblox;
+			const {
+				playerController: pc,
+				playerController: { objectMouseOver },
+			} = Miniblox;
 			const oldHitVec = objectMouseOver.hitVec;
 			player.yaw = rots.yaw;
 			player.pitch = rots.pitch;

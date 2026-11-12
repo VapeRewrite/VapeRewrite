@@ -1,29 +1,17 @@
 import type { EntityLivingBase, World } from "@wq2/miniblox-sdk";
 import type { Vector3Like } from "three";
 
-import { Category, type ArrayVec2 } from "@vape-rewrite/core";
+import { Category, SimpleVec3, type ArrayVec2 } from "@vape-rewrite/core";
 import { Mod } from "@vape-rewrite/core";
 
 import { Subscribe } from "@/event/Bus";
+import calculateRotations from "@/utils/aiming/lookAt";
 import RotationManager, { RotationPlan } from "@/utils/aiming/rotate";
-import Rotation from "@/utils/aiming/rotation";
 import MovementCorrection from "@/utils/movement/MovementCorrection";
 import { findTargets } from "@/utils/movement/target";
 import { stampTarget } from "@/utils/movement/TargetTracker";
 import PacketRefs from "@/utils/network/packetRefs";
 import Miniblox from "@/utils/refs/miniblox";
-
-function wrapAngleTo180_radians(angle: number): number {
-	let ang = angle;
-	ang = ang % (Math.PI * 2);
-	if (ang >= Math.PI) {
-		ang -= Math.PI * 2;
-	}
-	if (ang < -Math.PI) {
-		ang += Math.PI * 2;
-	}
-	return ang;
-}
 
 /** max distance you can attack a player from */
 const MAX_DIST = 3.5;
@@ -144,11 +132,13 @@ export default class TPAura extends Mod {
 		stampTarget(e);
 
 		const pos = e.pos.clone().setY(e.pos.y + e.getEyeHeight());
-		const aimPos = pos.clone().sub(e.pos);
-		const newYaw = wrapAngleTo180_radians(Math.atan2(aimPos.x, aimPos.z) - player.lastReportedYaw);
+
 		const outOfRange = player.getDistanceSqToEntity(e) > MAX_DIST_SQ;
 
-		const rots = new Rotation(player.lastReportedYaw + newYaw, -1);
+		const rots = calculateRotations(
+			SimpleVec3.fromThreeVec3(player.getEyePos()),
+			SimpleVec3.fromThreeVec3(pos),
+		);
 		if (outOfRange) this.#tp(pos, rots.toAV2());
 
 		RotationManager.scheduleRotation(new RotationPlan(rots, MovementCorrection.None, 2));
