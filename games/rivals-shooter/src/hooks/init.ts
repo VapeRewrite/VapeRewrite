@@ -1,0 +1,2 @@
+import "./gameHook";
+import "./hookTick";

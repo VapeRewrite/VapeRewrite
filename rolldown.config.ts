@@ -85,7 +85,7 @@ function defineGame(name: string, plugins?: RolldownPlugin[]): RolldownOptions {
 						.replace("process.env.GAME", name);
 					return newMeta;
 				},
-				metadataExperiment: true
+				metadataExperiment: "violentmonkey-error-hack"
 			}),
 		],
 		transform: {
@@ -122,9 +122,10 @@ function defineGame(name: string, plugins?: RolldownPlugin[]): RolldownOptions {
 
 export default defineConfig([
 	defineGame("miniblox"),
-	defineGame("waybackhq", [thing()]),
+	defineGame("waybackhq", [thing("@wq2/waybackhq-types")]),
 	defineGame("narrowOne"),
 	defineGame("classicNarrowOne"),
 	defineGame("vibeblox"),
 	defineGame("kirka"),
+	defineGame("rivals-shooter", [thing("@wq2/rivals-shooter-types")]),
 ]);

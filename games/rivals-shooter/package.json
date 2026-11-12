@@ -1,0 +1,19 @@
+{
+	"name": "@vape/rivals-shooter",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"dependencies": {
+		"@solidjs/web": "catalog:",
+		"@vape-rewrite/core": "workspace:*",
+		"@vape-rewrite/ui": "workspace:*",
+		"@vape-rewrite/ui-api": "workspace:*",
+		"solid-js": "catalog:"
+	},
+	"devDependencies": {
+		"@types/three": "0.170.0",
+		"@wq2/rivals-shooter-types": "^0.0.0"
+	}
+}

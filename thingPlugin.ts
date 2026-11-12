@@ -1,6 +1,6 @@
-import { RolldownPlugin, RolldownMagicString } from "rolldown";
+import { type RolldownPlugin, RolldownMagicString } from "rolldown";
 
-export default function dtsUserscriptPlugin(PKG = "@wq2/waybackhq-types"): RolldownPlugin {
+export default function dtsUserscriptPlugin(PKG: string): RolldownPlugin {
   // match things like "@wq2/waybackhq-types" or "@wq2/waybackhq-types/..."
   const pkgPrefix = PKG + "/";
   const pkgExact = PKG;
