@@ -123,6 +123,7 @@ function defineGame(name: string, plugins?: RolldownPlugin[]): RolldownOptions {
 export default defineConfig([
 	defineGame("miniblox"),
 	defineGame("waybackhq", [thing("@wq2/waybackhq-types")]),
+	defineGame("thePit"),
 	defineGame("narrowOne"),
 	defineGame("classicNarrowOne"),
 	defineGame("vibeblox"),
