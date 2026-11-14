@@ -28,8 +28,15 @@ function handleStackTrace(trace: string) {
 	const output = reconstructStack(modified);
 	return output;
 }
+
+const { browserName = "" } = GM.info.platform;
+
+const isFF = /Firefox/i.test(browserName);
+
+const stackDesc = isFF ? getOwnPropertyDescriptor(Error.prototype, "stack") : undefined;
+
 function spoofStack(err: Error): Error {
-	const origDesc = getOwnPropertyDescriptor(err, "stack");
+	const origDesc = stackDesc ?? getOwnPropertyDescriptor(err, "stack");
 	defineProperty(err, "stack", {
 		...origDesc,
 		get() {
@@ -45,14 +52,18 @@ function spoofStack(err: Error): Error {
 }
 
 export default function hook() {
-	w.Error = createProxy(origError, {
-		construct(target, argArray, newTarget) {
-			return spoofStack(Reflect.construct(target, argArray, newTarget));
-		},
-		apply(target, thisArg, argArray) {
-			return spoofStack(Reflect.apply(target, thisArg, argArray));
-		},
-	});
+	if (!isFF) {
+		w.Error = createProxy(origError, {
+			construct(target, argArray, newTarget) {
+				return spoofStack(Reflect.construct(target, argArray, newTarget));
+			},
+			apply(target, thisArg, argArray) {
+				return spoofStack(Reflect.apply(target, thisArg, argArray));
+			},
+		});
+	} else {
+		spoofStack(Error.prototype);
+	}
 	if ("captureStackTrace" in w.Error) {
 		const V8e = w.Error as V8Err;
 		V8e.captureStackTrace = createProxy(origCST, {
