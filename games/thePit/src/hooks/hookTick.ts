@@ -5,7 +5,6 @@ import { createProxy } from "@vape-rewrite/core";
 import Bus from "@/Bus";
 import game, { anyReady } from "@/utils/refs/game";
 
-import { ready as mainReady } from "./mainHook";
 import type { Player } from "@wq2/narrow-one-types";
 
 let origGameLoop, origBackgroundGameLoop, origPlayerLoop;
@@ -32,7 +31,7 @@ export function hookPlayerTick() {
 	origPlayerLoop = prototype.loop;
 	prototype.loop = createProxy(origPlayerLoop, {
 		apply(target, thisArg: Player, argArray: [now: number, dt: number]) {
-			if (!thisArg.hasOwnership) return Reflect.apply(target, thisArg, argArray);
+			if (!thisArg.Bd) return Reflect.apply(target, thisArg, argArray);
 			const c = new CancelableWrapper({
 				now: argArray[0],
 				dt: argArray[1]
@@ -43,7 +42,7 @@ export function hookPlayerTick() {
 	});
 }
 
-anyReady.then(async () => await delay(1e3)).then(() => {
+anyReady.then(async () => await delay(9e3)).then(() => {
 	// hookGameTick();
 	hookPlayerTick();
 });

@@ -20,10 +20,8 @@ const gameRefs = {
 		let player = null;
 		for (const p of game.bd()) {
 			// bd() yields owned players
-			if (p.Bd) {
-				player = p;
-				break;
-			}
+			player = p;
+			break;
 		}
 		return player;
 	},

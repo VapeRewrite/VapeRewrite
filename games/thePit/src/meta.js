@@ -1,6 +1,6 @@
 /* oxlint-disable unicorn/no-empty-file */
 // ==UserScript==
-// @match       https://bigbird.pelicontent.com/gamv_*/#game=pit
+// @match       https://bigbird.pelicontent.com/gamv_*/*
 // @run-at      document-start
 // ==/UserScript==
 // Jesper is gay.
