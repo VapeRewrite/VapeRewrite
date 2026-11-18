@@ -1,4 +1,4 @@
-import { SliderSetting } from "@vape-rewrite/core";
+import type { SliderSetting } from "@vape-rewrite/core";
 import { Category } from "@vape-rewrite/core";
 import { Mod } from "@vape-rewrite/core";
 

@@ -1,11 +1,11 @@
-/// <reference types="@types/bun" />
 import swc from "@wq2/rolldown-plugin-swc";
+/// <reference types="@types/bun" />
 import { readPackageUp } from "read-package-up";
-import { defineConfig, RolldownOptions, RolldownPlugin } from "rolldown";
+import { defineConfig, type RolldownOptions, type RolldownPlugin } from "rolldown";
 import userscript from "rolldown-plugin-userscript";
 import { withFilter } from "rolldown/filter";
 
-import minify from "./minifyPlugin";
+import minifyCSS from "./cssMinifyPlugin";
 import solid from "./solid";
 import thing from "./thingPlugin";
 
@@ -25,10 +25,7 @@ export const REAL_CLIENT_NAME =
  * - `packages/name/src/index.ts` is the entrypoint
  * - tsconfig in `packages/name/tsconfig.json`
  */
-function defineGame(
-	name: string,
-	plugins?: RolldownPlugin[],
-): RolldownOptions {
+function defineGame(name: string, plugins?: RolldownPlugin[]): RolldownOptions {
 	const FOLDER = `games/${name}`;
 	return {
 		input: `${FOLDER}/src/index.ts`,
@@ -63,6 +60,26 @@ function defineGame(
 							setPublicClassFields: true
 						},
 						transform: { decoratorVersion: "2023-11" },
+						experimental: {
+							disableAllLints: true,
+						},
+						assumptions: {
+							arrayLikeIsIterable: true,
+							constantReexports: true,
+							constantSuper: true,
+							ignoreFunctionLength: true,
+							ignoreFunctionName: true,
+							noClassCalls: true,
+							noNewArrows: true,
+							objectRestNoSymbols: true,
+							setPublicClassFields: true,
+							noDocumentAll: true,
+							superIsCallableConstructor: true,
+							setClassMethods: true,
+							setComputedProperties: true,
+							pureGetters: true,
+							setSpreadProperties: true,
+						},
 					},
 				}),
 				// Only run this transform if the file contains a decorator (and if it's a JS or TS file).
@@ -75,35 +92,30 @@ function defineGame(
 			),
 			solid(),
 			plugins,
-			// this MUST be before UserScript, so the comments from it won't be removed.
-			IS_PROD ? minify({
-				compress: false,
-				mangle: false,
-				codegen: {
-					removeWhitespace: true
-				}
-			}) : undefined,
-			userscript((meta: string) => {
-				const newMeta = meta
-					.replace("process.env.AUTHOR", packageJson.author?.name ?? "Unspecified")
-					.replace("process.env.VERSION", packageJson.version)
-					.replace("process.env.NAME", REAL_CLIENT_NAME)
-					.replace("process.env.GAME", name);
-				return newMeta;
+			userscript({
+				transform(meta: string) {
+					const newMeta = meta
+						.replace("process.env.AUTHOR", packageJson.author?.name ?? "Unspecified")
+						.replace("process.env.VERSION", packageJson.version)
+						.replace("process.env.NAME", REAL_CLIENT_NAME)
+						.replace("process.env.GAME", name);
+					return newMeta;
+				},
+				metadataExperiment: "violentmonkey-error-hack"
 			}),
 		],
 		transform: {
 			typescript: {
 				optimizeConstEnums: true,
 				optimizeEnums: true,
-				removeClassFieldsWithoutInitializer: true
+				removeClassFieldsWithoutInitializer: false,
 			},
 			assumptions: {
 				setPublicClassFields: true,
 				noDocumentAll: true,
 				// ignoreFunctionLength: true,
 				// objectRestNoSymbols: true,
-				pureGetters: true
+				pureGetters: true,
 			},
 		},
 
@@ -111,25 +123,25 @@ function defineGame(
 			format: "iife",
 			dir: `dist/${name}/`,
 			entryFileNames: `${name}.user.js`,
-			minify: IS_PROD ? {
-				compress: true,
-				mangle: true,
-				codegen: {removeWhitespace: false}
-			} : {
-				codegen: {removeWhitespace: false},
-				compress: {keepNames: {function: true, class: true}}
-			},
+			minify: IS_PROD ? true : "dce-only",
 			sourcemap: "inline",
 		},
-		tsconfig: `${FOLDER}/tsconfig.json`
+		optimization: { inlineConst: true, pifeForModuleWrappers: true },
+		experimental: {
+			attachDebugInfo: IS_PROD ? "none" : "simple",
+			nativeMagicString: true,
+			lazyBarrel: true,
+		},
+		tsconfig: `${FOLDER}/tsconfig.json`,
 	};
 }
 
 export default defineConfig([
 	defineGame("miniblox"),
-	defineGame("waybackhq", [thing()]),
+	defineGame("waybackhq", [thing("@wq2/waybackhq-types")]),
 	defineGame("narrowOne"),
 	defineGame("classicNarrowOne"),
 	defineGame("vibeblox"),
-	defineGame("kirka")
+	defineGame("kirka"),
+	defineGame("rivals-shooter", [thing("@wq2/rivals-shooter-types")]),
 ]);

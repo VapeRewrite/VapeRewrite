@@ -2,7 +2,7 @@ import type Speed from "./index";
 
 import { CancelableWrapper } from "@vape-rewrite/core";
 import { SubModule } from "@vape-rewrite/core";
-import { C2SPacket } from "@wq2/miniblox-sdk";
+import type { C2SPacket } from "@wq2/miniblox-sdk";
 
 import { Priority, Subscribe } from "@/event/Bus";
 import { isC2S } from "@/utils";

@@ -5,7 +5,7 @@ import canAttack from "@/utils/combat/teams";
 import gameRefs from "@/utils/refs/game";
 import { hook, unhook } from "@/hooks/bowHook";
 import Bus from "@/Bus";
-import { Vector3 } from "three";
+import type { Vector3 } from "three";
 
 export class BowAimbot extends Mod {
 	name = "BowAimbot";

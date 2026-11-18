@@ -8,10 +8,10 @@ import { Category } from "@vape-rewrite/core";
 import { Mod } from "@vape-rewrite/core";
 import { CancelableWrapper } from "@vape-rewrite/core";
 import { showNotification } from "@vape-rewrite/ui-api";
-import { Flag, Player } from "@wq2/narrow-one-types";
-
+import type { Flag, Player } from "@wq2/narrow-one-types";
 import Bus from "@/Bus";
-import { FlagChange, FlagChangeType, ServerMove, SpawnData } from "@/events";
+import type { FlagChange, ServerMove, SpawnData } from "@/events";
+import { FlagChangeType } from "@/events";
 import gameRefs from "@/utils/refs/game";
 import THREE from "@/utils/refs/three";
 

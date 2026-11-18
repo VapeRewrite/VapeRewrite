@@ -8,13 +8,13 @@ import type { CancelableWrapper } from "@vape-rewrite/core";
 import { Priority } from "@vape-rewrite/core";
 
 import Bus from "@/Bus";
-import { PosData } from "@/events";
+import type { PosData } from "@/events";
 import { main } from "@/hooks/mainHook";
 
 import game from "../refs/game";
 import Rotation from "./rotation";
 import THREE from "../refs/three";
-import type { BufferGeometry, Line, LineBasicMaterial, NormalBufferAttributes } from "three";
+import type { BufferGeometry, Line, LineBasicMaterial } from "three";
 
 export class RotationPlan {
 	constructor(
@@ -26,7 +26,7 @@ export class RotationPlan {
 export default new (class RotationManager {
 	#currentPlan: RotationPlan | undefined;
 	#trackedRot = Rotation.ZERO;
-	#tracer: Line<BufferGeometry<NormalBufferAttributes>, LineBasicMaterial>
+	#tracer: Line<BufferGeometry, LineBasicMaterial>
  | null = null;
 	#tracerGeo: BufferGeometry | null = null;
 

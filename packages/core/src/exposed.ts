@@ -20,11 +20,18 @@ function fakeEmptyFn<T extends Function>(f: T): T {
 	}) as unknown as T;
 }
 const origError = (unsafeWindow as typeof window).Error;
-const {construct: origConstruct} = Reflect;
-const {defineProperty} = Object;
+const { construct: origConstruct } = Reflect;
+const { defineProperty } = Object;
+
+const { browserName = "" } = GM.info.platform;
+
+const isFF = /Firefox/i.test(browserName);
 
 const origStackGetter: (() => string) | undefined = (() => {
-	const prop = Object.getOwnPropertyDescriptor(origConstruct(origError, []), "stack").get;
+	const prop = Object.getOwnPropertyDescriptor(
+		isFF ? origError.prototype : origConstruct(origError, []),
+		"stack",
+	).get;
 	if (!prop) return; // fallback to just getting it
 	return prop;
 })();
@@ -45,7 +52,7 @@ function init() {
 			return store;
 		}),
 		configurable: false,
-		enumerable: false
+		enumerable: false,
 	});
 	if (LOG_EXPOSE_NAME) logger.info("Symbol expose store name:", exposedName);
 }

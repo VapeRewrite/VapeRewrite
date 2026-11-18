@@ -16,11 +16,11 @@ import { Mod } from "@vape-rewrite/core";
 import { CancelableWrapper } from "@vape-rewrite/core";
 
 import Bus from "@/Bus";
-import { PosData } from "@/events";
+import type { PosData } from "@/events";
 import sendPosSilently from "@/utils/movement/sendPos";
 import Refs from "@/utils/refs/game";
-import { ArrayVec2 } from "@vape-rewrite/core";
-import { Vector3 } from "three";
+import type { ArrayVec2 } from "@vape-rewrite/core";
+import type { Vector3 } from "three";
 
 export default class Disabler extends Mod {
 	name = "Disabler";

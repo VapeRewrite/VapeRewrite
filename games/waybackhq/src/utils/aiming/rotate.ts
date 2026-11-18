@@ -9,7 +9,7 @@ import { Priority } from "@vape-rewrite/core";
 
 import Bus from "@/Bus";
 import Refs from "@/hooks/game";
-import { AnyPacket } from "@/hooks/packetHook";
+import type { AnyPacket } from "@/hooks/packetHook";
 import { mod as protocol } from "@/utils/wrappers/protocol";
 
 import MovementCorrection from "../movement/MovementCorrection";

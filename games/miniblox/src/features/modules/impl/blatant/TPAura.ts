@@ -1,46 +1,28 @@
 import type { EntityLivingBase, World } from "@wq2/miniblox-sdk";
 import type { Vector3Like } from "three";
 
-import { Category, type ArrayVec2 } from "@vape-rewrite/core";
+import { Category, SimpleVec3, type ArrayVec2 } from "@vape-rewrite/core";
 import { Mod } from "@vape-rewrite/core";
-import { deg2rad } from "@vape-rewrite/core";
 
 import { Subscribe } from "@/event/Bus";
+import calculateRotations from "@/utils/aiming/lookAt";
 import RotationManager, { RotationPlan } from "@/utils/aiming/rotate";
-import Rotation from "@/utils/aiming/rotation";
 import MovementCorrection from "@/utils/movement/MovementCorrection";
 import { findTargets } from "@/utils/movement/target";
 import { stampTarget } from "@/utils/movement/TargetTracker";
 import PacketRefs from "@/utils/network/packetRefs";
 import Miniblox from "@/utils/refs/miniblox";
 
-function wrapAngleTo180_radians(angle: number): number {
-	let ang = angle;
-	ang = ang % (Math.PI * 2);
-	if (ang >= Math.PI) {
-		ang -= Math.PI * 2;
-	}
-	if (ang < -Math.PI) {
-		ang += Math.PI * 2;
-	}
-	return ang;
-}
-
-/** max offset you can be looking away from a player in degrees */
-const MAX_OFFSET_DEG = 30;
-/** max offset you can be looking away from a player in radians */
-const MAX_OFFSET_RAD = deg2rad(MAX_OFFSET_DEG);
-
 /** max distance you can attack a player from */
-const MAX_DIST = 6;
+const MAX_DIST = 3.5;
 
 /** max distance squared */
 const MAX_DIST_SQ = MAX_DIST * MAX_DIST;
 
 export default class TPAura extends Mod {
-	public name = "TPAura";
-	public category = Category.BLATANT;
-	private blocking = false;
+	name = "TPAura";
+	category = Category.BLATANT;
+	#blocking = false;
 
 	// Settings
 	#rangeSetting = this.createSliderSetting("Range", 20, 6, 48, 0.5);
@@ -65,10 +47,10 @@ export default class TPAura extends Mod {
 
 	#block() {
 		if (!this.#autoBlock) {
-			this.blocking = false;
+			this.#blocking = false;
 			return;
 		}
-		if (this.blocking) return;
+		if (this.#blocking) return;
 		const { ClientSocket, playerControllerMP, player, world, playerController } = Miniblox;
 		// auto-remapping proxy!
 		playerControllerMP.syncItem();
@@ -84,11 +66,11 @@ export default class TPAura extends Mod {
 		} else {
 			playerController.sendUseItem(player, world as unknown as World, player.getHeldItem());
 		}
-		this.blocking = true;
+		this.#blocking = true;
 	}
 
 	#unblock() {
-		if (!this.blocking) return;
+		if (!this.#blocking) return;
 		const { ClientSocket, BlockPos, EnumFacing, player, playerControllerMP, playerController } =
 			Miniblox;
 		// auto-remapping proxy again lol
@@ -105,7 +87,7 @@ export default class TPAura extends Mod {
 				}),
 			);
 		}
-		this.blocking = false;
+		this.#blocking = false;
 	}
 
 	#tp(pos: Vector3Like, [yaw, pitch]: ArrayVec2) {
@@ -124,7 +106,17 @@ export default class TPAura extends Mod {
 				return;
 			}
 			case "Move": {
-				const { player } = Miniblox;
+				const { ClientSocket, player } = Miniblox;
+				const SPacketPlayerPosLook = PacketRefs.s.SPacketPlayerPosLook;
+				if (SPacketPlayerPosLook)
+					ClientSocket.sendPacket(
+						new SPacketPlayerPosLook({
+							onGround: player.onGround,
+							pos,
+							yaw,
+							pitch,
+						}),
+					);
 				const { x, y, z } = pos;
 				player.setPositionAndRotation(x, y, z, yaw, pitch);
 				return;
@@ -139,29 +131,25 @@ export default class TPAura extends Mod {
 
 		stampTarget(e);
 
-		const pos = e.pos.clone().setY(e.pos.y - 2);
-		const aimPos = pos.clone().sub(e.pos);
-		const newYaw = wrapAngleTo180_radians(Math.atan2(aimPos.x, aimPos.z) - player.lastReportedYaw);
-		const checkYaw = wrapAngleTo180_radians(Math.atan2(aimPos.x, aimPos.z) - player.yaw);
+		const pos = e.pos.clone().setY(e.pos.y + e.getEyeHeight());
+
 		const outOfRange = player.getDistanceSqToEntity(e) > MAX_DIST_SQ;
 
-		const needsRots = Math.abs(checkYaw) > MAX_OFFSET_RAD;
-		const rots = needsRots
-			? new Rotation(player.lastReportedYaw + newYaw, RotationManager.activeRotation.pitch)
-			: RotationManager.activeRotation;
+		const rots = calculateRotations(
+			SimpleVec3.fromThreeVec3(player.getEyePos()),
+			SimpleVec3.fromThreeVec3(pos),
+		);
 		if (outOfRange) this.#tp(pos, rots.toAV2());
 
-		if (needsRots) {
-			RotationManager.scheduleRotation(new RotationPlan(rots, MovementCorrection.None, 1));
-		}
+		RotationManager.scheduleRotation(new RotationPlan(rots, MovementCorrection.None, 2));
 
 		const { SPacketUseEntity } = PacketRefs.s;
 		if (SPacketUseEntity === undefined) {
 			// in case you haven't attacked yet
 			const [oldYaw, oldPitch] = [player.yaw, player.pitch];
 			const oldHitVec = Miniblox.playerController.objectMouseOver.hitVec;
-			player.yaw = RotationManager.activeRotation.yaw;
-			player.pitch = RotationManager.activeRotation.pitch;
+			player.yaw = rots.yaw;
+			player.pitch = rots.pitch;
 			Miniblox.playerController.objectMouseOver.hitVec = hitVec;
 			Miniblox.playerController.attackEntity(e);
 			Miniblox.playerController.objectMouseOver.hitVec = oldHitVec;
@@ -178,8 +166,8 @@ export default class TPAura extends Mod {
 						z: hitVec.z,
 					},
 					//@ts-expect-error: it's new
-					yaw: RotationManager.activeRotation.yaw,
-					pitch: RotationManager.activeRotation.pitch,
+					yaw: rots.yaw,
+					pitch: rots.pitch,
 					sequence: player.inputSequenceNumber,
 				}),
 			);
