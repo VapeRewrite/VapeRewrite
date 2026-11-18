@@ -4,8 +4,6 @@ import { readPackageUp } from "read-package-up";
 import { defineConfig, type RolldownOptions, type RolldownPlugin } from "rolldown";
 import userscript from "rolldown-plugin-userscript";
 import { withFilter } from "rolldown/filter";
-
-import minifyCSS from "./cssMinifyPlugin";
 import solid from "./solid";
 import thing from "./thingPlugin";
 
